@@ -1,0 +1,19 @@
+{
+  "name": "@automuse/server",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "bin": {
+    "automuse": "index.js"
+  },
+  "author": "Arpad Ray <arraypad@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@automuse/ui": "^0.1.0",
+    "express": "^4.17.1",
+    "parcel-bundler": "^1.12.4",
+    "sharp": "^0.24.0"
+  },
+  "devDependencies": {}
+}

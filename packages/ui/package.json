@@ -1,0 +1,29 @@
+{
+  "name": "@automuse/ui",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "parcel build --no-source-maps src/index.js",
+    "dev": "parcel example/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Arpad Ray <arraypad@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "react-input-color": "^2.0.28",
+    "@material-ui/core": "^4.9.1",
+    "@material-ui/icons": "^4.9.1",
+    "autoprefixer": "^9.7.4",
+    "dat.gui": "^0.7.6",
+    "parcel-bundler": "^1.12.4",
+    "postcss-modules": "^1.5.0",
+    "react": "16.x",
+    "react-dat-gui": "^4.0.0",
+    "react-dom": "16.x",
+    "regenerator-runtime": "^0.13.3",
+    "sass": "^1.25.0"
+  }
+}

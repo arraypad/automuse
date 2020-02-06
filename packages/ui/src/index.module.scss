@@ -1,0 +1,42 @@
+.modal {
+	width: 100vw;
+	height: 100vh;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	background: white;
+
+	.version {
+		display: inline-block;
+		width: 200px;
+		margin: 10px;
+		padding: 10px;
+		text-align: center;
+		border: 1px solid grey;
+		border-radius: 5px;
+		cursor: hand;
+
+		&:hover {
+			background: #ddd;
+		}
+	}
+}
+
+.foo {
+	font-color: green;
+	background: red;
+}
+
+.play {
+	flex: 1;
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+	background: 'linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), white',
+	backgroundRepeat: 'repeat, repeat',
+	backgroundPosition: '0px 0, 5px 5px',
+	backgroundOrigin: 'padding-box, padding-box',
+	backgroundClip: 'border-box, border-box',
+	backgroundSize: '10px 10px, 10px 10px',
+}
