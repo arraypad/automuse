@@ -11,6 +11,7 @@
   "author": "Arpad Ray <arraypad@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "clsx": "^1.1.0"
   },
   "devDependencies": {
     "react-input-color": "^2.0.28",

@@ -1,4 +1,5 @@
 import React from 'react';
+import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -12,13 +13,23 @@ import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import InputColor from 'react-input-color';
 import Switch from '@material-ui/core/Switch';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import IconButton from '@material-ui/core/IconButton';
+import clsx from 'clsx';
+
+export const drawerWidth = 300;
 
 const useStyles = makeStyles(theme => ({
-	appBar: {
-		zIndex: theme.zIndex.drawer + 1,
-	},
 	wrapper: {
-		flex: 1,
+		height: '100%',
+	},
+	drawerHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		padding: theme.spacing(0, 1),
+		...theme.mixins.toolbar,
+		justifyContent: 'flex-start',
 	},
 	play: {
 		height: '100%',
@@ -35,11 +46,11 @@ const useStyles = makeStyles(theme => ({
 	},
 	toolbar: theme.mixins.toolbar,
 	configPanel: {
-		width: '300px',
+		width: drawerWidth,
 	},
 	configPaper: {
-		background: 'none',
-		border: 'none',
+		background: '#eee',
+		// border: 'none',
 	},
 	configFolders: {
 		padding: '10px',
@@ -47,6 +58,11 @@ const useStyles = makeStyles(theme => ({
 	configDetails: {
 		display: 'flex',
 		flexDirection: 'column',
+	},
+	configInline: {
+		display: 'flex',
+		flexDirection: 'column',
+		marginBottom: theme.spacing(2),
 	},
 	configControl: {
 		marginBottom: '20px',
@@ -74,7 +90,7 @@ function assignAll(source, dest) {
 	}
 }
 
-export default function Play({ sketch, originalConfig }) {
+export default function Play({ sketch, originalConfig, drawerOpen, handleDrawerClose }) {
 	const classes = useStyles();
 
 	const [, setRerender] = React.useState();
@@ -183,8 +199,8 @@ export default function Play({ sketch, originalConfig }) {
 	});
 
 	folders.unshift(<UiFolder
-		title="Settings"
 		key="Settings"
+		title="Settings"
 		keys={topFieldKeys}
 		v={config.current}
 		expanded={true}
@@ -207,33 +223,54 @@ export default function Play({ sketch, originalConfig }) {
 		<div ref={containerRef} className={classes.play}>
 			{context.width && getInner(getContext())}
 		</div>
-		<Drawer variant="permanent" anchor="right" classes={{paper: classes.configPaper}}>
-			<div className={classes.toolbar} />
-				<div className={classes.configFolders}>
-					{folders}
-				</div>
+		<Drawer
+			variant="persistent"
+			anchor="right"
+			open={drawerOpen}
+			classes={{paper: classes.configPaper}}
+		>
+			<div className={classes.drawerHeader}>
+				<IconButton onClick={handleDrawerClose}>
+					<ChevronRightIcon />
+				</IconButton>
+			</div>
+			<Divider />
+			<div className={classes.configFolders}>
+				{folders}
+			</div>
 		</Drawer>
 	</div>
 }
 
 function UiFolder({ title, v, keys, onChange, expanded }) {
 	const classes = useStyles();
-	return <ExpansionPanel key={title} className={classes.configPanel} defaultExpanded={expanded}>
+
+	const fields = (keys || Object.keys(v)).map(k => 
+		<UiField
+			k={k}
+			v={v[k]}
+			key={k}
+			onChange={newValue => {
+				v[k] = newValue;
+				onChange(v, k);
+			}}
+		/>
+	);
+
+	if (!title) {
+		return <div className={classes.configInline}>{fields}</div>;
+	}
+
+	return <ExpansionPanel
+		key={title}
+		className={classes.configPanel}
+		defaultExpanded={expanded}
+	>
 		<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
 			<Typography className={classes.heading}>{title}</Typography>
 		</ExpansionPanelSummary>
 		<ExpansionPanelDetails className={classes.configDetails}>
-			{(keys || Object.keys(v)).map(k => 
-				<UiField
-					k={k}
-					v={v[k]}
-					key={k}
-					onChange={newValue => {
-						v[k] = newValue;
-						onChange(v, k);
-					}}
-				/>
-			)}
+			{fields}
 		</ExpansionPanelDetails>
 	</ExpansionPanel>;
 }

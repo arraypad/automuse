@@ -1,4 +1,5 @@
 import 'regenerator-runtime/runtime';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AppBar from '@material-ui/core/AppBar';
@@ -6,15 +7,21 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import { makeStyles } from '@material-ui/core/styles';
+import SettingsIcon from '@material-ui/icons/Settings';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import clsx from 'clsx';
 
-import Play from './play';
+import Play, { drawerWidth } from './play';
 
 const useStyles = makeStyles(theme => ({
 	appBar: {
-		zIndex: theme.zIndex.drawer + 1,
+		//zIndex: theme.zIndex.drawer + 1,
+		transition: theme.transitions.create(['margin', 'width'], {
+			easing: theme.transitions.easing.sharp,
+			duration: theme.transitions.duration.leavingScreen,
+		}),
 	},
 	capture: {
 		zIndex: theme.zIndex.drawer + 1,
@@ -24,6 +31,23 @@ const useStyles = makeStyles(theme => ({
 	},
 	captureIcon: {
 		margin: theme.spacing(1),
+	},
+	appBarShift: {
+		width: `calc(100% - ${drawerWidth}px)`,
+		transition: theme.transitions.create(['margin', 'width'], {
+			easing: theme.transitions.easing.easeOut,
+			duration: theme.transitions.duration.enteringScreen,
+		}),
+		marginRight: drawerWidth,
+	},
+	wrapper: {
+		flex: 1,
+	},
+	title: {
+		flexGrow: 1,
+	},
+	hide: {
+		display: 'none',
 	},
 }));
 
@@ -211,8 +235,12 @@ export class UiRunner extends BaseRunner {
 
 function App({ sketch, config }) {
 	const classes = useStyles();
+	const theme = useTheme();
+	const [open, setOpen] = React.useState(false);
+
 	return <>
 		<div style={{ display: 'flex', flexFlow: 'column', height: '100%' }}>
+			<CssBaseline />
 			<AppBar position="sticky" className={classes.appBar}>
 				<Toolbar>
 					<IconButton
@@ -223,14 +251,25 @@ function App({ sketch, config }) {
 					>
 						<MenuIcon />
 					</IconButton>
-					<Typography variant="h6" className={classes.title}>
+					<Typography variant="h6" noWrap className={classes.title}>
 						Automuse
 					</Typography>
+					<IconButton
+						color="inherit"
+						aria-label="open drawer"
+						edge="end"
+						onClick={() => setOpen(true)}
+						className={clsx(open && classes.hide)}
+					>
+						<SettingsIcon />
+					</IconButton>
 				</Toolbar>
 			</AppBar>
 			<Play
 				sketch={sketch}
 				originalConfig={config}
+				drawerOpen={open}
+				handleDrawerClose={() => setOpen(false)}
 			/>
 		</div>
 		<Fab variant="extended" color="primary" aria-label="add" className={classes.capture}>
