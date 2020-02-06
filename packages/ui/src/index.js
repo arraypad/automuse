@@ -7,12 +7,23 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
+import Fab from '@material-ui/core/Fab';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 
 import Play from './play';
 
 const useStyles = makeStyles(theme => ({
 	appBar: {
 		zIndex: theme.zIndex.drawer + 1,
+	},
+	capture: {
+		zIndex: theme.zIndex.drawer + 1,
+		position: 'fixed',
+		right: theme.spacing(2),
+		bottom: theme.spacing(2),
+	},
+	captureIcon: {
+		margin: theme.spacing(1),
 	},
 }));
 
@@ -200,27 +211,33 @@ export class UiRunner extends BaseRunner {
 
 function App({ sketch, config }) {
 	const classes = useStyles();
-	return <div style={{ display: 'flex', flexFlow: 'column', height: '100%' }}>
-		<AppBar position="sticky" className={classes.appBar}>
-			<Toolbar>
-				<IconButton
-					edge="start"
-					className={classes.menuButton}
-					color="inherit"
-					aria-label="menu"
-				>
-					<MenuIcon />
-				</IconButton>
-				<Typography variant="h6" className={classes.title}>
-					Automuse
-				</Typography>
-			</Toolbar>
-		</AppBar>
-		<Play
-			sketch={sketch}
-			originalConfig={config}
-		/>
-	</div>;
+	return <>
+		<div style={{ display: 'flex', flexFlow: 'column', height: '100%' }}>
+			<AppBar position="sticky" className={classes.appBar}>
+				<Toolbar>
+					<IconButton
+						edge="start"
+						className={classes.menuButton}
+						color="inherit"
+						aria-label="menu"
+					>
+						<MenuIcon />
+					</IconButton>
+					<Typography variant="h6" className={classes.title}>
+						Automuse
+					</Typography>
+				</Toolbar>
+			</AppBar>
+			<Play
+				sketch={sketch}
+				originalConfig={config}
+			/>
+		</div>
+		<Fab variant="extended" color="primary" aria-label="add" className={classes.capture}>
+			<FavoriteIcon className={classes.captureIcon} />
+			Capture
+		</Fab>
+	</>;
 };
 
 export function runApp(Sketch, config) {

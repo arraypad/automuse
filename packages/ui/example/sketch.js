@@ -3,7 +3,6 @@ export const config = {
 	width: 300,
 	height: 300,
 	color: '#f00',
-	enabled: true,
 	rotation: {
 		enabled: true,
 		speed: 0.5,
