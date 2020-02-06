@@ -6,7 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+import FlashAutoIcon from '@material-ui/icons/FlashAuto';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
@@ -16,6 +16,9 @@ import clsx from 'clsx';
 import Play, { drawerWidth } from './play';
 
 const useStyles = makeStyles(theme => ({
+	icon: {
+		marginRight: theme.spacing(1),
+	},
 	appBar: {
 		//zIndex: theme.zIndex.drawer + 1,
 		transition: theme.transitions.create(['margin', 'width'], {
@@ -243,14 +246,7 @@ function App({ sketch, config }) {
 			<CssBaseline />
 			<AppBar position="sticky" className={classes.appBar}>
 				<Toolbar>
-					<IconButton
-						edge="start"
-						className={classes.menuButton}
-						color="inherit"
-						aria-label="menu"
-					>
-						<MenuIcon />
-					</IconButton>
+					<FlashAutoIcon classes={{root: classes.icon}} />
 					<Typography variant="h6" noWrap className={classes.title}>
 						Automuse
 					</Typography>

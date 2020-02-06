@@ -11,9 +11,9 @@
   "author": "Arpad Ray <arraypad@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "clsx": "^1.1.0"
   },
   "devDependencies": {
+    "clsx": "^1.1.0",
     "react-input-color": "^2.0.28",
     "@material-ui/core": "^4.9.1",
     "@material-ui/icons": "^4.9.1",
