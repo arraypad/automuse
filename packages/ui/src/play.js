@@ -13,8 +13,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import InputColor from 'react-input-color';
 import Switch from '@material-ui/core/Switch';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import clsx from 'clsx';
 
@@ -49,7 +48,7 @@ const useStyles = makeStyles(theme => ({
 		width: drawerWidth,
 	},
 	configPaper: {
-		background: '#eee',
+		// background: '#eee',
 		// border: 'none',
 	},
 	configFolders: {
@@ -231,7 +230,7 @@ export default function Play({ sketch, originalConfig, drawerOpen, handleDrawerC
 		>
 			<div className={classes.drawerHeader}>
 				<IconButton onClick={handleDrawerClose}>
-					<ChevronRightIcon />
+					<CloseIcon />
 				</IconButton>
 			</div>
 			<Divider />
@@ -265,9 +264,10 @@ function UiFolder({ title, v, keys, onChange, expanded }) {
 		key={title}
 		className={classes.configPanel}
 		defaultExpanded={expanded}
+		elevation={0}
 	>
 		<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-			<Typography className={classes.heading}>{title}</Typography>
+			<Typography className={classes.heading}>{title.toUpperCase()}</Typography>
 		</ExpansionPanelSummary>
 		<ExpansionPanelDetails className={classes.configDetails}>
 			{fields}
