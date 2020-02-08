@@ -6,6 +6,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
+import AppsIcon from '@material-ui/icons/Apps';
 import clsx from 'clsx';
 
 import { UiFolder, UiField, drawerWidth } from './ui-field'
@@ -38,6 +40,18 @@ const useStyles = makeStyles(theme => ({
 		boxShadow: '10px 10px 23px 0px rgba(0,0,0,0.50)',
 	},
 	toolbar: theme.mixins.toolbar,
+	actions: {
+		zIndex: theme.zIndex.drawer + 1,
+		position: 'fixed',
+		right: theme.spacing(2),
+		bottom: theme.spacing(2),
+	},
+	captureIcon: {
+		margin: theme.spacing(1),
+	},
+	loadButton: {
+		marginLeft: theme.spacing(1),
+	},
 }));
 
 function assignAll(source, dest) {
@@ -59,11 +73,11 @@ export default function Play({
 	sketch,
 	originalConfig,
 	drawerOpen,
-	handleDrawerClose,
-	loadOpen,
-	handleLoadClose,
+	setDrawerOpen,
 }) {
 	const classes = useStyles();
+
+	const [loadOpen, setLoadOpen] = React.useState(false);
 
 	const [, setRerender] = React.useState();
 	const forceRerender = () => setRerender({});
@@ -225,7 +239,7 @@ export default function Play({
 			classes={{paper: classes.configPaper}}
 		>
 			<div className={classes.drawerHeader}>
-				<IconButton onClick={handleDrawerClose}>
+				<IconButton onClick={() => setDrawerOpen(false)}>
 					<CloseIcon />
 				</IconButton>
 			</div>
@@ -234,6 +248,19 @@ export default function Play({
 				{folders}
 			</div>
 		</Drawer>
-		<LoadDialog open={loadOpen} handleClose={handleLoadClose} />
+		<div className={classes.actions}>
+			<Fab variant="extended" color="primary" aria-label="capture">
+				Save
+			</Fab>
+			<Fab
+				color="secondary"
+				aria-label="load"
+				className={classes.loadButton}
+				onClick={() => setLoadOpen(true)}
+			>
+				<AppsIcon />
+			</Fab>
+		</div>
+		<LoadDialog open={loadOpen} handleClose={() => setLoadOpen(false)} />
 	</div>
 }
