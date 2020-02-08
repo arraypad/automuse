@@ -71,6 +71,15 @@ function assignAll(source, dest) {
 	}
 }
 
+// todo: namespace by sketch path
+function storeGetItem(name) {
+	return window.localStorage.getItem(name);
+}
+
+function storeSetItem(name, value) {
+	return window.localStorage.setItem(name, value);
+}
+
 export default function Play({
 	sketch,
 	originalConfig,
@@ -132,22 +141,21 @@ export default function Play({
 			updateDimensions();
 		}
 		resetConfigJson = JSON.stringify(newConfig);
-		window.localStorage.setItem('config', JSON.stringify(newConfig));
+		storeSetItem('config', JSON.stringify(newConfig));
 	};
 
 	const resetConfig = () => {
 		applyConfig(JSON.parse(resetConfigJson));
 	};
 
-	// todo: namespace by sketch path
-	const cachedConfigJson = window.localStorage.getItem('config');
+	const cachedConfigJson = storeGetItem('config');
 	if (cachedConfigJson !== null) {
 		applyConfig(JSON.parse(cachedConfigJson));
 	}
 
 	const onConfigChange = () => {
 		// todo: also store expansion state of folders?
-		window.localStorage.setItem('config', JSON.stringify(config.current));
+		storeSetItem('config', JSON.stringify(config.current));
 		forceRerender();
 	};
 
@@ -203,7 +211,7 @@ export default function Play({
 	 * Save and load versions
 	 */
 
-	const [parentId, setParentId] = React.useState(null);
+	const [parentId, setParentId] = React.useState(storeGetItem('parentId'));
 	const [versions, setVersions] = React.useState([]);
 
 	const onSave = async () => {
@@ -236,10 +244,6 @@ export default function Play({
 			const res = await fetch(`${apiRoot}/api/list`);
 			const versions = await res.json();
 			setVersions(versions);
-
-			const version = versions[versions.length - 1];
-			setParentId(version.id);
-			applyConfig(version.config);
 		})();
 	}, []);
 
@@ -352,6 +356,7 @@ export default function Play({
 			height={context.containerHeight}
 			onLoadVersion={version => {
 				setParentId(version.id);
+				storeSetItem('parentId', version.id);
 				applyConfig(version.config);
 				setLoadOpen(false);
 			}}
