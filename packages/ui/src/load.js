@@ -34,7 +34,7 @@ class VersionLabel extends React.PureComponent {
 			<a style={{
 					display: 'block',
 					border: '1px solid #666',
-					zIndex: 10,
+					background: '#fff',
 				}}
 				onClick={() => onLoadVersion(attributes)}
 			>

@@ -133,8 +133,8 @@ export default function Play({
 
 			if (container) {
 				const { width, height } = container.getBoundingClientRect();
-				context.width = width;
-				context.height = height;
+				context.width = context.containerWidth = width;
+				context.height = context.containerHeight = height;
 			}
 
 			return context;
@@ -338,8 +338,8 @@ export default function Play({
 			open={loadOpen}
 			handleClose={() => setLoadOpen(false)}
 			versions={versions}
-			width={context.width}
-			height={context.height}
+			width={context.containerWidth}
+			height={context.containerHeight}
 			onLoadVersion={version => {
 				setParentId(version.id);
 				applyConfig(version.config);
