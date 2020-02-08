@@ -33,16 +33,6 @@ const useStyles = makeStyles(theme => ({
 
 /*
 export class UiRunner extends BaseRunner {
-	clear() {
-		window.localStorage.clear();
-	}
-
-	applyConfig(config) {
-		assignAll(config, this.config);
-		window.localStorage.setItem('config', JSON.stringify(this.config));
-		this.setupUi();
-	}
-
 	async capture() {
 		const el = this.project.capture();
 		if (!(el instanceof HTMLCanvasElement)) {

@@ -82,6 +82,17 @@ export default function Play({
 	const [, setRerender] = React.useState();
 	const forceRerender = () => setRerender({});
 
+	/*
+	 * Set up context and config
+	 *
+	 * originalConfig is the object supplied alongside the sketch, we make changes
+	 * directly to this object to avoid requiring an API. The UI in the settings panel
+	 * is generated from and updates this object. Changes are persisted in local storage.
+	 *
+	 * context contains some extra properties which are updated every frame, overridden
+	 * by the config, and supplied to the sketch each render call.
+	 */
+
 	const [context, setContext] = React.useState({
 		document: document,
 		startTime: new Date().getTime(),
@@ -150,6 +161,10 @@ export default function Play({
 		config.current,
 	);
 
+	/*
+	 * Instantiate the sketch class and store in the project ref
+	 */
+
 	const project = React.useRef(null);
 
 	React.useEffect(() => {
@@ -165,30 +180,10 @@ export default function Play({
 			project.current = null;
 		};
 	}, [context]);
-		
-	const requestRef = React.useRef();
-	
-	const animate = time => {
-		if (project.current) {
-			project.current.render(getContext());
-		}
-		requestRef.current = requestAnimationFrame(animate);
-	};
-	
-	React.useEffect(() => {
-		requestRef.current = requestAnimationFrame(animate);
-		return () => cancelAnimationFrame(requestRef.current);
-	}, [context]);
 
-	const getInner = ({ width, height }) => 
-		<div
-			ref={innerRef}
-			className={classes.inner}
-			style={{
-				width: `${width}px`,
-				height: `${height}px`,
-			}}
-		/>;
+	/*
+	 * Generate UI
+	 */
 
 	const folders = [];
 	const topFieldKeys = [];
@@ -227,6 +222,38 @@ export default function Play({
 			onConfigChange();
 		}}
 	/>);
+
+	/*
+	 * Animate
+	 */
+
+	const requestRef = React.useRef();
+
+	const animate = time => {
+		if (project.current) {
+			project.current.render(getContext());
+		}
+		requestRef.current = requestAnimationFrame(animate);
+	};
+
+	React.useEffect(() => {
+		requestRef.current = requestAnimationFrame(animate);
+		return () => cancelAnimationFrame(requestRef.current);
+	}, [context]);
+
+
+	/*
+	 * Render
+	 */
+
+	const getInner = ({ width, height }) => <div
+		ref={innerRef}
+		className={classes.inner}
+		style={{
+			width: `${width}px`,
+			height: `${height}px`,
+		}}
+	/>;
 
 	return <div className={classes.wrapper}>
 		<div ref={containerRef} className={classes.play}>
