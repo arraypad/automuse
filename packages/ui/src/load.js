@@ -11,7 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import AppBar from '@material-ui/core/AppBar';
-import clsx from 'clsx';
+import Tree from 'react-d3-tree';
 
 const useStyles = makeStyles(theme => ({
 	appBar: {
@@ -27,8 +27,43 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function LoadDialog({ open, handleClose }) {
+class VersionLabel extends React.PureComponent {
+	render() {
+		const { nodeData: { attributes }, onLoadVersion, apiRoot } = this.props;
+		return <div key={attributes.id}>
+			<a style={{
+					display: 'block',
+					border: '1px solid #666',
+					zIndex: 10,
+				}}
+				onClick={() => onLoadVersion(attributes)}
+			>
+				<img src={`${apiRoot}/${attributes.image}`} style={{width: '100%'}} />
+			</a>
+		</div>;
+	}
+}
+
+export default function LoadDialog({ open, handleClose, versions, width, height, apiRoot, onLoadVersion }) {
 	const classes = useStyles();
+
+	let root;
+	if (versions.length) {
+		const versionMap = {};
+		for (const v of versions) {
+			versionMap[v.id] = {attributes: v, children: []};
+		}
+
+		root = versionMap[versions[0].id];
+		for (const [vId, v] of Object.entries(versionMap)) {
+			if (vId === root.attributes.id) {
+				continue;
+			}
+
+			versionMap[v.attributes.parentId].children.push(v);
+		}
+
+	}
 
 	return <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
 		<AppBar className={classes.appBar}>
@@ -41,7 +76,22 @@ export default function LoadDialog({ open, handleClose }) {
 				</Typography>
 			</Toolbar>
 		</AppBar>
-		<div>
+		<div style={{width: `${width}px`, height: `${height}px`}}>
+			{root &&
+				<Tree
+					data={root}
+					orientation="vertical"
+					allowForeignObjects
+					nodeLabelComponent={{
+						render: <VersionLabel onLoadVersion={onLoadVersion} apiRoot={apiRoot} />,
+						foreignObjectWrapper: {},
+					}}
+					translate={{
+						x: width / 2,
+						y: height / 2,
+					}}
+				/>
+			}
 		</div>
 	</Dialog>;
 };

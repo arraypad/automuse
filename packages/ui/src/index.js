@@ -31,60 +31,6 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-/*
-export class UiRunner extends BaseRunner {
-	async capture() {
-		const el = this.project.capture();
-		if (!(el instanceof HTMLCanvasElement)) {
-			alert('Captured element not supported');
-			return;
-		}			
-		
-		const dataUrl = el.toDataURL();
-		await fetch('/api/save', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				image: dataUrl,
-				config: this.config,
-			}),
-		});
-	}
-
-	async list() {
-		const res = await fetch('/api/list');
-		const list = await res.json();
-
-		const modal = document.createElement('div');
-		modal.className = 'modal';
-		modal.style = '';
-		modal.addEventListener('click', () => document.body.removeChild(modal));
-
-		for (const { id, image, config } of list) {
-			const imgEl = document.createElement('img');
-			imgEl.style = 'width: 100%';
-			imgEl.src = image;
-
-			const el = document.createElement('a');
-			el.className = 'version';
-			el.appendChild(imgEl);
-			el.addEventListener('click', () => {
-				this.applyConfig(config);
-				document.body.removeChild(modal);
-			});
-
-			el.appendChild(document.createTextNode(id));
-
-			modal.appendChild(el);
-		}
-
-		document.body.appendChild(modal);
-	}
-}
-*/
-
 function App({ sketch, config }) {
 	const classes = useStyles();
 	const theme = useTheme();

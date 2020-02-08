@@ -13,6 +13,8 @@ import clsx from 'clsx';
 import { UiFolder, UiField, drawerWidth } from './ui-field'
 import LoadDialog from './load';
 
+const apiRoot = 'http://localhost:1235';
+
 export { drawerWidth };
 
 const useStyles = makeStyles(theme => ({
@@ -182,7 +184,51 @@ export default function Play({
 	}, [context]);
 
 	/*
-	 * Generate UI
+	 * Save and load versions
+	 */
+
+	const [parentId, setParentId] = React.useState(null);
+	const [versions, setVersions] = React.useState([]);
+
+	const onSave = async () => {
+		const el = project.current.capture();
+		if (!(el instanceof HTMLCanvasElement)) {
+			alert('Captured element not supported');
+			return;
+		}			
+
+		const dataUrl = el.toDataURL();
+		const res = await fetch(`${apiRoot}/api/save`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				parentId: parentId,
+				image: dataUrl,
+				config: config.current,
+			}),
+		});
+
+		const versions = await res.json();
+		setVersions(versions);
+		setParentId(versions[versions.length - 1].id);
+	};
+
+	React.useEffect(() => {
+		(async () => {
+			const res = await fetch(`${apiRoot}/api/list`);
+			const versions = await res.json();
+			setVersions(versions);
+
+			const version = versions[versions.length - 1];
+			setParentId(version.id);
+			applyConfig(version.config);
+		})();
+	}, []);
+
+	/*
+	 * Generate settings UI from config
 	 */
 
 	const folders = [];
@@ -241,7 +287,6 @@ export default function Play({
 		return () => cancelAnimationFrame(requestRef.current);
 	}, [context]);
 
-
 	/*
 	 * Render
 	 */
@@ -276,18 +321,31 @@ export default function Play({
 			</div>
 		</Drawer>
 		<div className={classes.actions}>
-			<Fab variant="extended" color="primary" aria-label="capture">
+			<Fab variant="extended" color="primary" aria-label="capture" onClick={onSave}>
 				Save
 			</Fab>
 			<Fab
 				color="secondary"
 				aria-label="load"
 				className={classes.loadButton}
+				disabled={versions.length === 0}
 				onClick={() => setLoadOpen(true)}
 			>
 				<AppsIcon />
 			</Fab>
 		</div>
-		<LoadDialog open={loadOpen} handleClose={() => setLoadOpen(false)} />
+		{context.width && <LoadDialog
+			open={loadOpen}
+			handleClose={() => setLoadOpen(false)}
+			versions={versions}
+			width={context.width}
+			height={context.height}
+			onLoadVersion={version => {
+				setParentId(version.id);
+				applyConfig(version.config);
+				setLoadOpen(false);
+			}}
+			apiRoot={apiRoot}
+		/>}
 	</div>
 }

@@ -11,20 +11,22 @@
   "author": "Arpad Ray <arraypad@gmail.com>",
   "license": "MIT",
   "dependencies": {
-  },
-  "devDependencies": {
-    "clsx": "^1.1.0",
-    "react-input-color": "^2.0.28",
     "@material-ui/core": "^4.9.1",
     "@material-ui/icons": "^4.9.1",
     "autoprefixer": "^9.7.4",
+    "clsx": "^1.1.0",
     "dat.gui": "^0.7.6",
+    "dev": "^0.1.3",
     "parcel-bundler": "^1.12.4",
     "postcss-modules": "^1.5.0",
     "react": "16.x",
+    "react-d3-tree": "^1.16.1",
     "react-dat-gui": "^4.0.0",
     "react-dom": "16.x",
+    "react-input-color": "^2.0.28",
+    "react-transition-group": "^1.2.1",
     "regenerator-runtime": "^0.13.3",
     "sass": "^1.25.0"
-  }
+  },
+  "devDependencies": {}
 }
