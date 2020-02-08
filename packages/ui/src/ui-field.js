@@ -124,13 +124,13 @@ function UiFieldInner({ k, v, onChange }) {
 		break;
 	case 'string':
 		input = <TextField
-			defaultValue={v.value}
+			value={v.value}
 			onChange={e => onChange(e.target.value)}
 		/>;
 		break;
 	case 'number':
 		input = <TextField
-			defaultValue={v.value}
+			value={v.value}
 			onChange={e => onChange(parseFloat(e.target.value))}
 		/>;
 		break;
