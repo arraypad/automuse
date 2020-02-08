@@ -74,6 +74,28 @@ export default function Play({
 	});
 
 	const config = React.useRef(originalConfig);
+	let resetConfigJson = JSON.stringify(config);
+
+	const applyConfig = newConfig => {
+		config.current = newConfig;
+		resetConfigJson = JSON.stringify(newConfig);
+		window.localStorage.setItem('config', JSON.stringify(newConfig));
+	};
+
+	const resetConfig = () => {
+		applyConfig(JSON.parse(resetConfigJson));
+	};
+
+	// todo: namespace by sketch path
+	const cachedConfigJson = window.localStorage.getItem('config');
+	if (cachedConfigJson !== null) {
+		applyConfig(JSON.parse(cachedConfigJson));
+	}
+
+	const onConfigChange = () => {
+		window.localStorage.setItem('config', JSON.stringify(config.current));
+		forceRerender();
+	};
 
 	const containerRef = React.useCallback(container => {
 		setContext(prevContext => {
@@ -162,7 +184,7 @@ export default function Play({
 				title={k}
 				v={v}
 				onChange={() => {
-					forceRerender();
+					onConfigChange();
 				}}
 			/>);
 		} else {
@@ -187,7 +209,7 @@ export default function Play({
 				project.current.resize(getContext());
 			}
 
-			forceRerender();
+			onConfigChange();
 		}}
 	/>);
 
