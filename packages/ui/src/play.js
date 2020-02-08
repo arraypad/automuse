@@ -84,6 +84,8 @@ export default function Play({
 	const [, setRerender] = React.useState();
 	const forceRerender = () => setRerender({});
 
+	const project = React.useRef(null);
+
 	/*
 	 * Set up context and config
 	 *
@@ -100,11 +102,35 @@ export default function Play({
 		startTime: new Date().getTime(),
 	});
 
+	const getContext = () => Object.assign(
+		{
+			time: (new Date().getTime() - context.startTime) / 1000,
+			...context,
+		},
+		config.current,
+	);
+
 	const config = React.useRef(originalConfig);
 	let resetConfigJson = JSON.stringify(config);
 
+	const updateDimensions = () => {
+		setContext(prevContext => ({
+			...prevContext,
+			width: config.current.width,
+			height: config.current.height,
+		}));
+
+		if (project.current) {
+			project.current.resize(getContext());
+		}
+	};
+
 	const applyConfig = newConfig => {
+		const dimsChanged = newConfig.width !== config.current.width || newConfig.height !== config.current.height;
 		assignAll(newConfig, config.current);
+		if (dimsChanged) {
+			updateDimensions();
+		}
 		resetConfigJson = JSON.stringify(newConfig);
 		window.localStorage.setItem('config', JSON.stringify(newConfig));
 	};
@@ -155,19 +181,9 @@ export default function Play({
 		});
 	}, []);
 
-	const getContext = () => Object.assign(
-		{
-			time: (new Date().getTime() - context.startTime) / 1000,
-			...context,
-		},
-		config.current,
-	);
-
 	/*
 	 * Instantiate the sketch class and store in the project ref
 	 */
-
-	const project = React.useRef(null);
 
 	React.useEffect(() => {
 		if (context.container) {
@@ -256,13 +272,7 @@ export default function Play({
 		expanded={true}
 		onChange={(newValue, changedKey) => {
 			if (project.current && (changedKey === 'width' || changedKey === 'height')) {
-				setContext(prevContext => ({
-					...prevContext,
-					width: config.current.width,
-					height: config.current.height,
-				}));
-
-				project.current.resize(getContext());
+				updateDimensions();
 			}
 
 			onConfigChange();
