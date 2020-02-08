@@ -2,6 +2,8 @@
 
 const Bundler = require('parcel-bundler');
 const express = require('express');
+const cors = require('cors');
+const { argv } = require('yargs');
 const { existsSync, mkdirSync, readFileSync, writeFileSync } = require('fs');
 
 const { entryHtml, entryJs, babelConfig, skeletonJs } = require('./templates');
@@ -29,6 +31,7 @@ if (existsSync('.automuse-store')) {
 }
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use('/.automuse-store', express.static('.automuse-store'));
 
@@ -41,6 +44,7 @@ app.post('/api/save', (req, res) => {
 
 	index.push({
 		id,
+		parentId: req.body.parentId,
 		image: imagePath,
 		config: req.body.config,
 	});
@@ -54,8 +58,10 @@ app.get('/api/list', (req, res) => {
 });
 
 const options = {};
-const bundler = new Bundler('.automuse.html', options);
-app.use(bundler.middleware());
 
-app.listen(1234);
+if (!argv.serveOnly) {
+	const bundler = new Bundler('.automuse.html', options);
+	app.use(bundler.middleware());
+}
 
+app.listen(argv.port || 1234);
