@@ -118,7 +118,7 @@ function UiFieldInner({ k, v, onChange }) {
 	case 'color':
 		input = <InputColor
 			className={classes.inputColor}
-			initialHexColor={'#ff0000'}
+			initialHexColor={v.value}
 			onChange={newValue => onChange(newValue.hex)}
 		/>
 		break;
