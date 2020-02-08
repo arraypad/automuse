@@ -77,7 +77,7 @@ export default function Play({
 	let resetConfigJson = JSON.stringify(config);
 
 	const applyConfig = newConfig => {
-		config.current = newConfig;
+		assignAll(newConfig, config.current);
 		resetConfigJson = JSON.stringify(newConfig);
 		window.localStorage.setItem('config', JSON.stringify(newConfig));
 	};
@@ -93,6 +93,7 @@ export default function Play({
 	}
 
 	const onConfigChange = () => {
+		// todo: also store expansion state of folders?
 		window.localStorage.setItem('config', JSON.stringify(config.current));
 		forceRerender();
 	};
