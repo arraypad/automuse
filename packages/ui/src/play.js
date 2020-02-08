@@ -9,6 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import clsx from 'clsx';
 
 import { UiFolder, UiField, drawerWidth } from './ui-field'
+import LoadDialog from './load';
 
 export { drawerWidth };
 
@@ -54,7 +55,14 @@ function assignAll(source, dest) {
 	}
 }
 
-export default function Play({ sketch, originalConfig, drawerOpen, handleDrawerClose }) {
+export default function Play({
+	sketch,
+	originalConfig,
+	drawerOpen,
+	handleDrawerClose,
+	loadOpen,
+	handleLoadClose,
+}) {
 	const classes = useStyles();
 
 	const [, setRerender] = React.useState();
@@ -203,5 +211,6 @@ export default function Play({ sketch, originalConfig, drawerOpen, handleDrawerC
 				{folders}
 			</div>
 		</Drawer>
+		<LoadDialog open={loadOpen} handleClose={handleLoadClose} />
 	</div>
 }

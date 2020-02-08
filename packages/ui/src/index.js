@@ -6,6 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import AppsIcon from '@material-ui/icons/Apps';
 import FlashAutoIcon from '@material-ui/icons/FlashAuto';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -26,7 +27,7 @@ const useStyles = makeStyles(theme => ({
 			duration: theme.transitions.duration.leavingScreen,
 		}),
 	},
-	capture: {
+	actions: {
 		zIndex: theme.zIndex.drawer + 1,
 		position: 'fixed',
 		right: theme.spacing(2),
@@ -35,13 +36,8 @@ const useStyles = makeStyles(theme => ({
 	captureIcon: {
 		margin: theme.spacing(1),
 	},
-	appBarShift: {
-		width: `calc(100% - ${drawerWidth}px)`,
-		transition: theme.transitions.create(['margin', 'width'], {
-			easing: theme.transitions.easing.easeOut,
-			duration: theme.transitions.duration.enteringScreen,
-		}),
-		marginRight: drawerWidth,
+	loadButton: {
+		marginLeft: theme.spacing(1),
 	},
 	wrapper: {
 		flex: 1,
@@ -239,7 +235,8 @@ export class UiRunner extends BaseRunner {
 function App({ sketch, config }) {
 	const classes = useStyles();
 	const theme = useTheme();
-	const [open, setOpen] = React.useState(false);
+	const [drawerOpen, setDrawerOpen] = React.useState(false);
+	const [loadOpen, setLoadOpen] = React.useState(false);
 
 	return <>
 		<div style={{ display: 'flex', flexFlow: 'column', height: '100%' }}>
@@ -254,8 +251,8 @@ function App({ sketch, config }) {
 						color="inherit"
 						aria-label="open drawer"
 						edge="end"
-						onClick={() => setOpen(true)}
-						className={clsx(open && classes.hide)}
+						onClick={() => setDrawerOpen(true)}
+						className={clsx(drawerOpen && classes.hide)}
 					>
 						<SettingsIcon />
 					</IconButton>
@@ -264,14 +261,25 @@ function App({ sketch, config }) {
 			<Play
 				sketch={sketch}
 				originalConfig={config}
-				drawerOpen={open}
-				handleDrawerClose={() => setOpen(false)}
+				drawerOpen={drawerOpen}
+				loadOpen={loadOpen}
+				handleDrawerClose={() => setDrawerOpen(false)}
+				handleLoadClose={() => setLoadOpen(false)}
 			/>
 		</div>
-		<Fab variant="extended" color="primary" aria-label="add" className={classes.capture}>
-			<FavoriteIcon className={classes.captureIcon} />
-			Capture
-		</Fab>
+		<div className={classes.actions}>
+			<Fab variant="extended" color="primary" aria-label="capture">
+				Save
+			</Fab>
+			<Fab
+				color="secondary"
+				aria-label="load"
+				className={classes.loadButton}
+				onClick={() => setLoadOpen(true)}
+			>
+				<AppsIcon />
+			</Fab>
+		</div>
 	</>;
 };
 
