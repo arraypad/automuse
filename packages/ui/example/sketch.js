@@ -43,7 +43,7 @@ export class Sketch {
 
 		// draw rect
 		this.ctx.fillStyle = config.color;
-		this.ctx.fillRect(width / 4, width / 4, width / 2, height / 2);
+		this.ctx.fillRect(width / 4, height / 4, width / 2, height / 2);
 
 		// clear rotation
 		this.ctx.restore();
