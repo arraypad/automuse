@@ -361,6 +361,7 @@ export default function Play({
 				setLoadOpen(false);
 			}}
 			apiRoot={apiRoot}
+			parentId={parentId}
 		/>}
 	</div>
 }
