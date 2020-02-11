@@ -353,6 +353,7 @@ export default function Play({
 			<div className={classes.configFolders}>
 				{folders}
 			</div>
+			<div className={classes.drawerHeader} />
 		</Drawer>
 		<div className={classes.actions}>
 			<Fab variant="extended" color="primary" aria-label="capture" onClick={onSave}>
