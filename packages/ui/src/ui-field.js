@@ -92,11 +92,16 @@ export function UiField({ k, v, onChange }) {
 	return <UiFieldInner k={k} v={v} onChange={onChange} />;
 }
 
+function itoh2(i) {
+	const s = (i & 255).toString(16);
+	return s.length === 2 ? s : '0' + s;
+}
+
 function UiFieldInner({ k, v, onChange }) {
 	const classes = useStyles();
 
 	if (!v.component) {
-		if (/colou?r/.test(k)) {
+		if (/colou?r/i.test(k)) {
 			v.component = 'color';
 		} else {
 			switch (typeof(v.value)) {
@@ -116,10 +121,20 @@ function UiFieldInner({ k, v, onChange }) {
 	let input;
 	switch (v.component) {
 	case 'color':
+		let numeric = false, i = v.value;
+		if (typeof(i) === 'number') {
+			numeric = true;
+			i = `#${itoh2(i >> 16)}${itoh2(i >> 8)}${itoh2(i)}`;
+		}
+
 		input = <InputColor
 			className={classes.inputColor}
-			initialHexColor={v.value}
-			onChange={newValue => onChange(newValue.hex)}
+			initialHexColor={i}
+			onChange={newValue => {
+				onChange(numeric
+					? ((newValue.r << 16) | (newValue.g << 8) | newValue.b)
+					: newValue.hex)
+			}}
 		/>
 		break;
 	case 'string':
