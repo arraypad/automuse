@@ -172,7 +172,13 @@ function UiFieldInner({ k, v, onChange, inputOnly }) {
 		input = <TextField
 			label={inputOnly && k}
 			value={v.value}
-			onChange={e => onChange(parseFloat(e.target.value))}
+			type="number"
+			onChange={e => {
+				const newValue = parseFloat(e.target.value);
+				if (!isNaN(newValue)) {
+					onChange(newValue);
+				}
+			}}
 		/>;
 		break;
 	case 'switch':
