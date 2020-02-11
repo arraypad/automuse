@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
 export function UiFolder({ title, v, keys, onChange, expanded }) {
 	const classes = useStyles();
 
-	const fields = (keys || Object.keys(v)).map(k => 
+	const fields = (keys || Object.keys(v)).map(k =>
 		<UiField
 			k={k}
 			v={v[k]}
@@ -78,18 +78,42 @@ export function UiFolder({ title, v, keys, onChange, expanded }) {
 	</ExpansionPanel>;
 }
 
-export function UiField({ k, v, onChange }) {
+export function UiField({ k, v, onChange, inputOnly }) {
 	if (typeof(v) !== 'object') {
-		return <UiFieldInner k={k} v={{value: v}} onChange={onChange} />;
+		return <UiFieldInner k={k} v={{value: v}} onChange={onChange} inputOnly={inputOnly} />;
 	}
 
-	if (v.constructor.name === 'Vector3') {
-		return <UiFolder key={k} title={k} v={v} keys={['x', 'y', 'z']} onChange={onChange} />;
+	if (v.constructor.name === 'Vector3' || v.constructor.name === 'Euler') {
+		return <UiFieldCompound key={k} title={k} v={v} keys={['x', 'y', 'z']} onChange={onChange} />;
 	} else if (v.constructor.name === 'Vector2') {
-		return <UiFolder key={k} title={k} v={v} keys={['x', 'y']} onChange={onChange} />;
+		return <UiFieldCompound key={k} title={k} v={v} keys={['x', 'y']} onChange={onChange} />;
 	}
 	
-	return <UiFieldInner k={k} v={v} onChange={onChange} />;
+	return <UiFieldInner k={k} v={v} onChange={onChange} inputOnly={inputOnly} />;
+}
+
+function UiFieldCompound({ title, v, keys, onChange }) {
+	const classes = useStyles();
+
+	return <FormControl className={classes.configControl}>
+		<FormLabel>{title}</FormLabel>
+		<div style={{
+			display: 'flex',
+		}}>
+			{(keys || Object.keys(v)).map(k =>
+				<UiField
+					k={k}
+					v={v[k]}
+					key={k}
+					onChange={newValue => {
+						v[k] = newValue;
+						onChange(v, k);
+					}}
+					inputOnly={true}
+				/>
+			)}
+		</div>
+	</FormControl>;
 }
 
 function itoh2(i) {
@@ -97,7 +121,7 @@ function itoh2(i) {
 	return s.length === 2 ? s : '0' + s;
 }
 
-function UiFieldInner({ k, v, onChange }) {
+function UiFieldInner({ k, v, onChange, inputOnly }) {
 	const classes = useStyles();
 
 	if (!v.component) {
@@ -139,12 +163,14 @@ function UiFieldInner({ k, v, onChange }) {
 		break;
 	case 'string':
 		input = <TextField
+			label={inputOnly && k}
 			value={v.value}
 			onChange={e => onChange(e.target.value)}
 		/>;
 		break;
 	case 'number':
 		input = <TextField
+			label={inputOnly && k}
 			value={v.value}
 			onChange={e => onChange(parseFloat(e.target.value))}
 		/>;
@@ -161,6 +187,10 @@ function UiFieldInner({ k, v, onChange }) {
 	default:
 		console.error('Unknown component type: ', v.component);
 		return false;
+	}
+
+	if (inputOnly) {
+		return input;
 	}
 	
 	return <FormControl className={classes.configControl}>
