@@ -42,6 +42,15 @@ const useStyles = makeStyles(theme => ({
 	inputColor: {
 		marginTop: '5px',
 	},
+	fieldCompound: {
+		display: 'flex',
+	},
+	fieldCompoundItem: {
+		marginRight: theme.spacing(2),
+		'&:last-of-type': {
+			marginRight: 0,
+		},
+	},
 }));
 
 export function UiFolder({ title, v, keys, onChange, expanded }) {
@@ -97,20 +106,22 @@ function UiFieldCompound({ title, v, keys, onChange }) {
 
 	return <FormControl className={classes.configControl}>
 		<FormLabel>{title}</FormLabel>
-		<div style={{
-			display: 'flex',
-		}}>
+		<div className={classes.fieldCompound}>
 			{(keys || Object.keys(v)).map(k =>
-				<UiField
-					k={k}
-					v={v[k]}
+				<div
 					key={k}
-					onChange={newValue => {
-						v[k] = newValue;
-						onChange(v, k);
-					}}
-					inputOnly={true}
-				/>
+					className={classes.fieldCompoundItem}
+				>
+					<UiField
+						k={k}
+						v={v[k]}
+						onChange={newValue => {
+							v[k] = newValue;
+							onChange(v, k);
+						}}
+						inputOnly={true}
+					/>
+				</div>
 			)}
 		</div>
 	</FormControl>;
