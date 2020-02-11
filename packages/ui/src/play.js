@@ -157,6 +157,9 @@ export default function Play({
 		// todo: also store expansion state of folders?
 		storeSetItem('config', JSON.stringify(config.current));
 		forceRerender();
+		if (project.current && !project.current.animate) {
+			project.current.render(getContext());
+		}
 	};
 
 	const containerRef = React.useCallback(container => {
@@ -196,6 +199,10 @@ export default function Play({
 	React.useEffect(() => {
 		if (context.container) {
 			project.current = new sketch(getContext());
+
+			if (!project.current.animate) {
+				project.current.render(getContext());
+			}
 		}
 
 		return () => {
@@ -293,14 +300,25 @@ export default function Play({
 
 	const animate = time => {
 		if (project.current) {
-			project.current.render(getContext());
+			if (project.current.animate) {
+				project.current.animate(getContext());
+				project.current.render(getContext());
+			} else {
+				requestRef.current = null;
+				return;
+			}
 		}
+
 		requestRef.current = requestAnimationFrame(animate);
 	};
 
 	React.useEffect(() => {
 		requestRef.current = requestAnimationFrame(animate);
-		return () => cancelAnimationFrame(requestRef.current);
+		return () => {
+			if (requestRef.current) {
+				cancelAnimationFrame(requestRef.current);
+			}
+		};
 	}, [context]);
 
 	/*
