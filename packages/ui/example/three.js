@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { SVGRenderer } from 'three/examples/jsm/renderers/SVGRenderer';
 
 export const config = {
 	width: 600,
@@ -36,7 +35,7 @@ export class Sketch {
 		this.ambient = new THREE.AmbientLight(config.ambientColor);
 		this.scene.add(this.ambient);
 
-		this.renderer = new SVGRenderer(document);
+		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setClearColor(config.clearColor, 1.0);
 		this.renderer.setSize(width, height);
 		container.appendChild(this.renderer.domElement);
