@@ -13,7 +13,7 @@ import clsx from 'clsx';
 import { UiFolder, UiField, drawerWidth } from './ui-field'
 import LoadDialog from './load';
 
-const apiRoot = 'http://localhost:1235';
+const apiRoot = 'http://localhost:1234';
 
 export { drawerWidth };
 
