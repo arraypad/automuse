@@ -231,6 +231,8 @@ export default function Play({
 				parentId: parentId,
 				image: dataUrl,
 				config: config.current,
+				width: config.current.width || context.width,
+				height: config.current.height || context.height,
 			}),
 		});
 
