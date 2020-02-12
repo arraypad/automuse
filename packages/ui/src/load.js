@@ -1,5 +1,6 @@
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Divider from '@material-ui/core/Divider';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
@@ -12,6 +13,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import AppBar from '@material-ui/core/AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import { hierarchy as d3hierarchy, tree as d3tree } from 'd3-hierarchy';
 import clsx from 'clsx';
 import {
@@ -51,8 +55,10 @@ const useStyles = makeStyles(theme => ({
 		},
 	},
 	active: {
-		cursor: 'auto',
 		border: '1px solid #000',
+	},
+	config: {
+		whiteSpace: 'pre-wrap',
 	},
 }));
 
@@ -63,18 +69,69 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 	const classes = useStyles();
+	const [anchorEl, setAnchorEl] = React.useState(null);
 
-	return <Tooltip key={data.id} title={data.id}>
+	const menuOpen = event => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const menuClose = () => {
+		setAnchorEl(null);
+	};
+
+	const [aboutOpen, setAboutOpen] = React.useState(false);
+
+	return <div key={data.id}>
 		<a 
 			className={clsx(classes.node, active && classes.active)}
-			onClick={() => onLoadVersion(data)}
+			onClick={menuOpen}
 			style={{
 				backgroundImage: `url(${apiRoot}/${data.image})`,
 				backgroundSize: 'contain',
 			}}
 		>
 		</a>
-	</Tooltip>;
+		<Menu
+			id="simple-menu"
+			anchorEl={anchorEl}
+			keepMounted
+			open={Boolean(anchorEl)}
+			onClose={menuClose}
+		>
+			<MenuItem
+				onClick={() => { menuClose(); onLoadVersion(data); }}
+				disabled={active}
+			>
+				Load version
+			</MenuItem>
+			<MenuItem onClick={() => { menuClose(); setAboutOpen(true); }}>
+				About
+			</MenuItem>
+			<MenuItem onClick={() => { menuClose(); window.open(`${apiRoot}/${data.image}`); }}>
+				View capture in new tab
+			</MenuItem>
+		</Menu>
+		<Dialog
+			open={aboutOpen}
+			onClose={() => setAboutOpen(false)}
+		>
+			<DialogTitle>About version</DialogTitle>
+			<List>
+				<ListItem><ListItemText primary="ID" secondary={data.id} /></ListItem>
+				<ListItem>
+					<ListItemText
+						primary="Config"
+						secondary={JSON.stringify(data.config, null, 2)}
+						secondaryTypographyProps={{
+							classes: {
+								root: classes.config,
+							},
+						}}
+					/>
+				</ListItem>
+			</List>
+		</Dialog>
+	</div>;
 }
 
 function TreeView({ root, width, height, apiRoot, onLoadVersion, parentId }) {
