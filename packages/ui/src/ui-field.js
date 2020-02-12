@@ -79,7 +79,7 @@ export function UiFolder({ title, v, keys, onChange, expanded }) {
 		elevation={0}
 	>
 		<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-			<Typography className={classes.heading}>{title.toUpperCase()}</Typography>
+			<Typography className={classes.heading}>{title.replace(/(?<=[a-z])([A-Z])/, ' $1').toUpperCase()}</Typography>
 		</ExpansionPanelSummary>
 		<ExpansionPanelDetails className={classes.configDetails}>
 			{fields}
