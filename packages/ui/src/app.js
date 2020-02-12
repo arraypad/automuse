@@ -1,24 +1,44 @@
 import React from 'react';
+
+import AppBar from '@material-ui/core/AppBar';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
-import Typography from '@material-ui/core/Typography';
-import Toolbar from '@material-ui/core/Toolbar';
-import { makeStyles } from '@material-ui/core/styles';
-import CloseIcon from '@material-ui/icons/Close';
-import IconButton from '@material-ui/core/IconButton';
 import Fab from '@material-ui/core/Fab';
+import IconButton from '@material-ui/core/IconButton';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+
 import AppsIcon from '@material-ui/icons/Apps';
-import clsx from 'clsx';
+import CloseIcon from '@material-ui/icons/Close';
+import MenuIcon from '@material-ui/icons/Menu';
+import SettingsIcon from '@material-ui/icons/Settings';
+
+import { makeStyles } from '@material-ui/core/styles';
 
 import { UiFolder, UiField, drawerWidth } from './ui-field'
 import LoadDialog from './load';
 
 const apiRoot = process.env.AUTOMUSE_API_ROOT || 'http://localhost:1234';
 
-export { drawerWidth };
-
 const useStyles = makeStyles(theme => ({
+	icon: {
+		marginRight: theme.spacing(1),
+	},
+	appBar: {
+		transition: theme.transitions.create(['margin', 'width'], {
+			easing: theme.transitions.easing.sharp,
+			duration: theme.transitions.duration.leavingScreen,
+		}),
+	},
 	wrapper: {
+		flex: 1,
+	},
+	title: {
+		flexGrow: 1,
+	},
+	appWrapper: {
 		height: '100%',
 	},
 	drawerHeader: {
@@ -71,13 +91,11 @@ function assignAll(source, dest) {
 	}
 }
 
-const Play = React.forwardRef(({
+export default function App({
 	sketch,
 	originalConfig,
-	drawerOpen,
-	setDrawerOpen,
 	projectId,
-}, ref) => {
+}) {
 	function storeGetItem(name) {
 		return window.localStorage.getItem(`${projectId}/${name}`);
 	}
@@ -88,6 +106,12 @@ const Play = React.forwardRef(({
 
 	const classes = useStyles();
 
+	const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+	const [menuAnchorEl, setMenuAnchorEl] = React.useState(null);
+	const menuClose = () => {
+		setMenuAnchorEl(null);
+	};
 	const [loadOpen, setLoadOpen] = React.useState(false);
 
 	const [, setRerender] = React.useState();
@@ -272,12 +296,6 @@ const Play = React.forwardRef(({
 		})();
 	}, []);
 
-	React.useImperativeHandle(ref, () => ({
-		export() {
-			alert('exporting!');
-		}
-	}));
-
 	/*
 	 * Generate settings UI from config
 	 */
@@ -356,65 +374,112 @@ const Play = React.forwardRef(({
 		}}
 	/>;
 
-	return <div className={classes.wrapper}>
-		<div ref={containerRef} className={classes.play}>
-			{context.width && getInner(getContext())}
-		</div>
-		<Drawer
-			variant="persistent"
-			anchor="right"
-			open={drawerOpen}
-			classes={{paper: classes.configPaper}}
-		>
-			<div className={classes.drawerHeader}>
-				<IconButton onClick={() => setDrawerOpen(false)}>
-					<CloseIcon />
-				</IconButton>
-			</div>
-			<Divider />
-			<div className={classes.configFolders}>
-				{folders}
-			</div>
-			<div className={classes.drawerHeader} />
-		</Drawer>
-		<div className={classes.actions}>
-			<Fab variant="extended" color="primary" aria-label="capture" onClick={onSave}>
-				Save
-			</Fab>
-			<Fab
-				color="secondary"
-				aria-label="load"
-				className={classes.loadButton}
-				disabled={versions.length === 0}
-				onClick={() => setLoadOpen(true)}
+	return <>
+		<div style={{ display: 'flex', flexFlow: 'column', height: '100%' }}>
+			<AppBar position="sticky" className={classes.appBar}>
+				<Toolbar>
+					<IconButton
+						classes={{root: classes.icon}}
+						color="inherit"
+						onClick={e => setMenuAnchorEl(e.currentTarget)}
+					>
+						<MenuIcon />
+					</IconButton>
+					<Typography variant="h6" noWrap className={classes.title}>
+						Automuse
+					</Typography>
+					<IconButton
+						color="inherit"
+						aria-label="open drawer"
+						edge="end"
+						onClick={() => setDrawerOpen(true)}
+					>
+						<SettingsIcon />
+					</IconButton>
+				</Toolbar>
+			</AppBar>
+			<Menu
+				variant="menu"
+				getContentAnchorEl={null}
+				anchorEl={menuAnchorEl}
+				anchorOrigin={{
+					vertical: 'bottom',
+					horizontal: 'left',
+				}}
+				transformOrigin={{
+					vertical: 'top',
+					horizontal: 'left',
+				}}
+				keepMounted
+				open={Boolean(menuAnchorEl)}
+				onClose={menuClose}
 			>
-				<AppsIcon />
-			</Fab>
+				<MenuItem onClick={() => {
+					menuClose();
+					alert('exporting!');
+				}}>
+					Export
+				</MenuItem>
+			</Menu>
+			<div className={classes.appWrapper}>
+				<div ref={containerRef} className={classes.play}>
+					{context.width && getInner(getContext())}
+				</div>
+				<Drawer
+					variant="persistent"
+					anchor="right"
+					open={drawerOpen}
+					classes={{paper: classes.configPaper}}
+				>
+					<div className={classes.drawerHeader}>
+						<IconButton onClick={() => setDrawerOpen(false)}>
+							<CloseIcon />
+						</IconButton>
+					</div>
+					<Divider />
+					<div className={classes.configFolders}>
+						{folders}
+					</div>
+					<div className={classes.drawerHeader} />
+				</Drawer>
+				<div className={classes.actions}>
+					<Fab variant="extended" color="primary" aria-label="capture" onClick={onSave}>
+						Save
+					</Fab>
+					<Fab
+						color="secondary"
+						aria-label="load"
+						className={classes.loadButton}
+						disabled={versions.length === 0}
+						onClick={() => setLoadOpen(true)}
+					>
+						<AppsIcon />
+					</Fab>
+				</div>
+				{context.width && <LoadDialog
+					open={loadOpen}
+					handleClose={() => setLoadOpen(false)}
+					versions={versions}
+					width={context.containerWidth}
+					height={context.containerHeight}
+					onLoadVersion={version => {
+						setParentId(version.id);
+						storeSetItem('parentId', version.id);
+						applyConfig(version.config);
+						setLoadOpen(false);
+					}}
+					onDeleteVersion={version => {
+						if (version.id === parentId) {
+							setParentId(version.parentId);
+							storeSetItem('parentId', version.parentId);
+						}
+						onDelete(version);
+						setLoadOpen(false);
+					}}
+					apiRoot={apiRoot}
+					parentId={parentId}
+				/>}
+			</div>
 		</div>
-		{context.width && <LoadDialog
-			open={loadOpen}
-			handleClose={() => setLoadOpen(false)}
-			versions={versions}
-			width={context.containerWidth}
-			height={context.containerHeight}
-			onLoadVersion={version => {
-				setParentId(version.id);
-				storeSetItem('parentId', version.id);
-				applyConfig(version.config);
-				setLoadOpen(false);
-			}}
-			onDeleteVersion={version => {
-				if (version.id === parentId) {
-					setParentId(version.parentId);
-					storeSetItem('parentId', version.parentId);
-				}
-				onDelete(version);
-				setLoadOpen(false);
-			}}
-			apiRoot={apiRoot}
-			parentId={parentId}
-		/>}
-	</div>
-});
-
-export default Play;
+	</>;
+}
