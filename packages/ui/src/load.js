@@ -88,10 +88,9 @@ function ConfigView({ config }) {
 			className={classes.configArea}
 			ref={textRef}
 			wrap="off"
-			readonly
-		>
-			{JSON.stringify(config, 0, 4)}
-		</textarea>
+			readOnly
+			value={JSON.stringify(config, 0, 4)}
+		/>
 		<Button
 			className={classes.configCopy}
 			color="primary"
@@ -162,10 +161,12 @@ function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 			<DialogTitle>About version</DialogTitle>
 			<List className={classes.about}>
 				<ListItem><ListItemText primary="ID" secondary={data.id} /></ListItem>
+				<ListItem><ListItemText primary="Git revision" secondary={data.revision || '[no revision]'} /></ListItem>
 				<ListItem>
 					<ListItemText
 						primary="Config"
 						secondary={<ConfigView config={data.config} />}
+						secondaryTypographyProps={{ component: 'div' }}
 					/>
 				</ListItem>
 			</List>

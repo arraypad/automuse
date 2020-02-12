@@ -6,6 +6,7 @@ const cors = require('cors');
 const { argv } = require('yargs');
 const { existsSync, mkdirSync, readFileSync, writeFileSync } = require('fs');
 const crypto = require('crypto');
+const { execSync } = require('child_process');
 
 let sketchPath = argv._.length === 1 ? argv._[0] : 'default';
 if (!/\.jsx?/i.test(sketchPath)) {
@@ -52,6 +53,15 @@ app.use(express.json());
 
 app.use(`/${storePath}`, express.static(storePath));
 
+function getRevision() {
+	try {
+		const buf = execSync('git rev-parse --short HEAD');
+		return buf.toString('utf-8');
+	} catch {
+		return null;
+	}
+}
+
 app.post('/api/save', (req, res) => {
 	const id = new Date().toISOString();
 
@@ -64,6 +74,7 @@ app.post('/api/save', (req, res) => {
 		parentId: req.body.parentId,
 		image: imagePath,
 		config: req.body.config,
+		revision: getRevision(),
 	});
 	writeFileSync(indexPath, JSON.stringify(index));
 
