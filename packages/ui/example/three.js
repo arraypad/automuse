@@ -61,6 +61,11 @@ export class Sketch {
 		this.renderer.setSize(width, height);
 	}
 
+	capture(context) {
+		this.render(context);
+		return this.renderer.domElement;
+	}
+
 	animate() {
 		this.mesh.rotation.x += config.rotation.speed.x;
 		this.mesh.rotation.y += config.rotation.speed.y;
