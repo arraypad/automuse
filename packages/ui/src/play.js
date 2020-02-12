@@ -71,13 +71,13 @@ function assignAll(source, dest) {
 	}
 }
 
-export default function Play({
+const Play = React.forwardRef(({
 	sketch,
 	originalConfig,
 	drawerOpen,
 	setDrawerOpen,
 	projectId,
-}) {
+}, ref) => {
 	function storeGetItem(name) {
 		return window.localStorage.getItem(`${projectId}/${name}`);
 	}
@@ -272,6 +272,12 @@ export default function Play({
 		})();
 	}, []);
 
+	React.useImperativeHandle(ref, () => ({
+		export() {
+			alert('exporting!');
+		}
+	}));
+
 	/*
 	 * Generate settings UI from config
 	 */
@@ -409,4 +415,6 @@ export default function Play({
 			parentId={parentId}
 		/>}
 	</div>
-}
+});
+
+export default Play;

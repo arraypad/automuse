@@ -136,7 +136,6 @@ function VersionLabel({ data, apiRoot, onLoadVersion, onDeleteVersion, active })
 		>
 		</a>
 		<Menu
-			id="simple-menu"
 			anchorEl={anchorEl}
 			keepMounted
 			open={Boolean(anchorEl)}
