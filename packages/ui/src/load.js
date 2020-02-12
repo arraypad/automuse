@@ -155,6 +155,9 @@ function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 		<Dialog
 			open={aboutOpen}
 			onClose={() => setAboutOpen(false)}
+			onClick={e => e.stopPropagation()}
+			onMouseDown={e => e.stopPropagation()}
+			onTouchStart={e => e.stopPropagation()}
 		>
 			<DialogTitle>About version</DialogTitle>
 			<List className={classes.about}>
