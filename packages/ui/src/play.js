@@ -248,6 +248,22 @@ export default function Play({
 		setParentId(versions[versions.length - 1].id);
 	};
 
+	const onDelete = async (version) => {
+		const res = await fetch(`${apiRoot}/api/delete`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				id: version.id,
+				parentId: version.parentId,
+			}),
+		});
+
+		const versions = await res.json();
+		setVersions(versions);
+	};
+
 	React.useEffect(() => {
 		(async () => {
 			const res = await fetch(`${apiRoot}/api/list`);
@@ -379,6 +395,14 @@ export default function Play({
 				setParentId(version.id);
 				storeSetItem('parentId', version.id);
 				applyConfig(version.config);
+				setLoadOpen(false);
+			}}
+			onDeleteVersion={version => {
+				if (version.id === parentId) {
+					setParentId(version.parentId);
+					storeSetItem('parentId', version.parentId);
+				}
+				onDelete(version);
 				setLoadOpen(false);
 			}}
 			apiRoot={apiRoot}

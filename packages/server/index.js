@@ -81,6 +81,27 @@ app.post('/api/save', (req, res) => {
 	res.json(index);
 });
 
+app.post('/api/delete', (req, res) => {
+	let versionIndex = null;
+	for (let i = 0; i < index.length; i++) {
+		const version = index[i];
+		if (version.id === req.body.id) {
+			versionIndex = i;
+			continue;
+		}
+
+		if (version.parentId === req.body.id) {
+			version.parentId = req.body.parentId;
+		}
+	}
+
+	if (versionIndex !== null) {
+		index.splice(versionIndex, 1);
+	}
+
+	res.json(index);
+});
+
 app.get('/api/list', (req, res) => {
 	res.json(index);
 });

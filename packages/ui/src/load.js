@@ -1,6 +1,9 @@
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import Divider from '@material-ui/core/Divider';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItem from '@material-ui/core/ListItem';
@@ -107,7 +110,7 @@ function ConfigView({ config }) {
 	</div>;
 }
 
-function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
+function VersionLabel({ data, apiRoot, onLoadVersion, onDeleteVersion, active }) {
 	const classes = useStyles();
 	const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -120,6 +123,7 @@ function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 	};
 
 	const [aboutOpen, setAboutOpen] = React.useState(false);
+	const [deleteOpen, setDeleteOpen] = React.useState(false);
 
 	return <div key={data.id}>
 		<a 
@@ -150,6 +154,12 @@ function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 			<MenuItem onClick={() => { menuClose(); window.open(`${apiRoot}/${data.image}`); }}>
 				View in new tab
 			</MenuItem>
+			<MenuItem onClick={() => {
+				menuClose();
+				setDeleteOpen(true);
+			}}>
+				Delete
+			</MenuItem>
 		</Menu>
 		<Dialog
 			open={aboutOpen}
@@ -171,10 +181,32 @@ function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 				</ListItem>
 			</List>
 		</Dialog>
+		<Dialog
+			open={deleteOpen}
+			onClose={() => setDeleteOpen(false)}
+			onClick={e => e.stopPropagation()}
+			onMouseDown={e => e.stopPropagation()}
+			onTouchStart={e => e.stopPropagation()}
+		>
+			<DialogTitle>{"Delete version"}</DialogTitle>
+			<DialogContent>
+				<DialogContentText>
+					This will permanently delete this version, are you sure you want to continue?
+				</DialogContentText>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={() => setDeleteOpen(false)}>
+					Cancel
+				</Button>
+				<Button onClick={() => onDeleteVersion(data)} color="primary" autoFocus>
+					Delete
+				</Button>
+			</DialogActions>
+		</Dialog>
 	</div>;
 }
 
-function TreeView({ root, width, height, apiRoot, onLoadVersion, parentId }) {
+function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion, parentId }) {
 	const classes = useStyles();
 
 	// calculate tree layout
@@ -229,6 +261,7 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, parentId }) {
 				data={d.data}
 				apiRoot={apiRoot}
 				onLoadVersion={onLoadVersion}
+				onDeleteVersion={onDeleteVersion}
 				active={d.data.id === parentId}
 			/>
 		</foreignObject>);
@@ -277,7 +310,7 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, parentId }) {
 	</ReactSVGPanZoom>;
 }
 
-export default function LoadDialog({ open, handleClose, versions, width, height, apiRoot, onLoadVersion, parentId }) {
+export default function LoadDialog({ open, handleClose, versions, width, height, apiRoot, onLoadVersion, onDeleteVersion, parentId }) {
 	const classes = useStyles();
 
 	let root;
@@ -314,6 +347,7 @@ export default function LoadDialog({ open, handleClose, versions, width, height,
 			height={height}
 			apiRoot={apiRoot}
 			onLoadVersion={onLoadVersion}
+			onDeleteVersion={onDeleteVersion}
 			parentId={parentId}
 		/>}
 	</Dialog>;
