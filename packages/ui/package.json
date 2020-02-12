@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "parcel build --no-source-maps --experimental-scope-hoisting src/index.js",
-    "dev": "parcel example/index.html",
+    "dev": "AUTOMUSE_API_ROOT=http://localhost:1235 parcel example/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Arpad Ray <arraypad@gmail.com>",

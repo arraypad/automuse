@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-function App({ sketch, config }) {
+function App({ sketch, config, projectId }) {
 	const classes = useStyles();
 	const theme = useTheme();
 
@@ -61,16 +61,18 @@ function App({ sketch, config }) {
 				originalConfig={config}
 				drawerOpen={drawerOpen}
 				setDrawerOpen={setDrawerOpen}
+				projectId={projectId}
 			/>
 		</div>
 	</>;
 };
 
-export function runApp(Sketch, config) {
+export function runApp(Sketch, config, projectId) {
 	ReactDOM.render(
 		<App
 			sketch={Sketch}
 			config={config}
+			projectId={projectId}
 		/>,
 		document.getElementById("container"),
 	);

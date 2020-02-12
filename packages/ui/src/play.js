@@ -13,7 +13,7 @@ import clsx from 'clsx';
 import { UiFolder, UiField, drawerWidth } from './ui-field'
 import LoadDialog from './load';
 
-const apiRoot = 'http://localhost:1234';
+const apiRoot = process.env.AUTOMUSE_API_ROOT || 'http://localhost:1234';
 
 export { drawerWidth };
 
@@ -71,21 +71,21 @@ function assignAll(source, dest) {
 	}
 }
 
-// todo: namespace by sketch path
-function storeGetItem(name) {
-	return window.localStorage.getItem(name);
-}
-
-function storeSetItem(name, value) {
-	return window.localStorage.setItem(name, value);
-}
-
 export default function Play({
 	sketch,
 	originalConfig,
 	drawerOpen,
 	setDrawerOpen,
+	projectId,
 }) {
+	function storeGetItem(name) {
+		return window.localStorage.getItem(`${projectId}/${name}`);
+	}
+
+	function storeSetItem(name, value) {
+		return window.localStorage.setItem(`${projectId}/${name}`, value);
+	}
+
 	const classes = useStyles();
 
 	const [loadOpen, setLoadOpen] = React.useState(false);
@@ -222,7 +222,7 @@ export default function Play({
 	const [versions, setVersions] = React.useState([]);
 
 	const onSave = async () => {
-		const el = project.current.capture();
+		const el = project.current.capture(getContext());
 		if (!(el instanceof HTMLCanvasElement)) {
 			alert('Captured element not supported');
 			return;

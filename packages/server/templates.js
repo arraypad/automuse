@@ -7,14 +7,15 @@ const entryHtml = `<html>
 </head>
 <body>
 	<div id="container"></div>
+	<script>window
 	<script src=".automuse.js"></script>
 </body>
 </html>`;
 
-const entryJs = sketchName => `
+const entryJs = (projectId, sketchName) => `
 import { runApp } from '@automuse/ui';
-import { Sketch, config } from './${sketchName}';
-runApp(Sketch, config);
+import { Sketch, config } from '../${sketchName}';
+runApp(Sketch, config, projectId);
 `;
 
 const skeletonJs = `
