@@ -16,6 +16,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import { hierarchy as d3hierarchy, tree as d3tree } from 'd3-hierarchy';
 import clsx from 'clsx';
 import {
@@ -57,15 +58,55 @@ const useStyles = makeStyles(theme => ({
 	active: {
 		border: '1px solid #000',
 	},
-	config: {
-		whiteSpace: 'pre-wrap',
+	about: {
+		minWidth: '500px',
+	},
+	configContainer: {
+		position: 'relative',
+	},
+	configArea: {
+		width: '100%',
+		minHeight: '200px',
+	},
+	configCopy: {
+		position: 'absolute',
+		right: theme.spacing(3),
+		bottom: theme.spacing(1),
 	},
 }));
-
 
 const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
 });
+
+function ConfigView({ config }) {
+	const classes = useStyles();
+
+	const textRef = React.useRef(null);
+	return <div className={classes.configContainer}>
+		<textarea
+			className={classes.configArea}
+			ref={textRef}
+			wrap="off"
+			readonly
+		>
+			{JSON.stringify(config, 0, 4)}
+		</textarea>
+		<Button
+			className={classes.configCopy}
+			color="primary"
+			variant="contained"
+			startIcon={<FileCopyIcon />}
+			onClick={() => {
+				textRef.current.select();
+				document.execCommand('copy');
+				textRef.current.blur();
+			}}
+		>
+			Copy
+		</Button>
+	</div>;
+}
 
 function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 	const classes = useStyles();
@@ -108,7 +149,7 @@ function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 				About
 			</MenuItem>
 			<MenuItem onClick={() => { menuClose(); window.open(`${apiRoot}/${data.image}`); }}>
-				View capture in new tab
+				View in new tab
 			</MenuItem>
 		</Menu>
 		<Dialog
@@ -116,17 +157,12 @@ function VersionLabel({ data, apiRoot, onLoadVersion, active }) {
 			onClose={() => setAboutOpen(false)}
 		>
 			<DialogTitle>About version</DialogTitle>
-			<List>
+			<List className={classes.about}>
 				<ListItem><ListItemText primary="ID" secondary={data.id} /></ListItem>
 				<ListItem>
 					<ListItemText
 						primary="Config"
-						secondary={JSON.stringify(data.config, null, 2)}
-						secondaryTypographyProps={{
-							classes: {
-								root: classes.config,
-							},
-						}}
+						secondary={<ConfigView config={data.config} />}
 					/>
 				</ListItem>
 			</List>
