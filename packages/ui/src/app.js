@@ -5,14 +5,20 @@ import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
-import AppsIcon from '@material-ui/icons/Apps';
 import CloseIcon from '@material-ui/icons/Close';
+import CodeIcon from '@material-ui/icons/Code';
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
 import MenuIcon from '@material-ui/icons/Menu';
+import SaveIcon from '@material-ui/icons/Save';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
+
 import SettingsIcon from '@material-ui/icons/Settings';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -67,6 +73,9 @@ const useStyles = makeStyles(theme => ({
 		position: 'fixed',
 		right: theme.spacing(2),
 		bottom: theme.spacing(2),
+	},
+	save: {
+		margin: theme.spacing(1),
 	},
 	captureIcon: {
 		margin: theme.spacing(1),
@@ -414,11 +423,23 @@ export default function App({
 				open={Boolean(menuAnchorEl)}
 				onClose={menuClose}
 			>
-				<MenuItem onClick={() => {
-					menuClose();
-					alert('exporting!');
-				}}>
-					Export
+				<MenuItem onClick={() => { menuClose(); onSave(); }}>
+					<ListItemIcon fontSize="small"><SaveIcon /></ListItemIcon>
+					<ListItemText>Save</ListItemText>
+				</MenuItem>
+				<MenuItem onClick={() => { menuClose(); setLoadOpen(true); }}
+					disabled={versions.length === 0}
+				>
+					<ListItemIcon fontSize="small"><OpenInBrowserIcon /></ListItemIcon>
+					<ListItemText>Load</ListItemText>
+				</MenuItem>
+				<MenuItem onClick={() => { menuClose(); alert('exporting!'); }}>
+					<ListItemIcon fontSize="small"><SaveAltIcon /></ListItemIcon>
+					<ListItemText>Export render</ListItemText>
+				</MenuItem>
+				<MenuItem onClick={() => { menuClose(); alert('exporting!'); }}>
+					<ListItemIcon fontSize="small"><CodeIcon /></ListItemIcon>
+					<ListItemText>Export production build</ListItemText>
 				</MenuItem>
 			</Menu>
 			<div className={classes.appWrapper}>
@@ -443,17 +464,9 @@ export default function App({
 					<div className={classes.drawerHeader} />
 				</Drawer>
 				<div className={classes.actions}>
-					<Fab variant="extended" color="primary" aria-label="capture" onClick={onSave}>
+					<Fab variant="extended" color="primary" onClick={onSave}>
+						<SaveIcon className={classes.save} />
 						Save
-					</Fab>
-					<Fab
-						color="secondary"
-						aria-label="load"
-						className={classes.loadButton}
-						disabled={versions.length === 0}
-						onClick={() => setLoadOpen(true)}
-					>
-						<AppsIcon />
 					</Fab>
 				</div>
 				{context.width && <LoadDialog
