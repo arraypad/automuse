@@ -1,10 +1,17 @@
 import React from 'react';
 
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
@@ -281,6 +288,19 @@ export default function App({
 		setParentId(versions[versions.length - 1].id);
 	};
 
+	const isExporting = React.useRef(false);
+	const [exportOpen, setExportOpen] = React.useState(false);
+	const [exportProgress, setExportProgress] = React.useState(50);
+	const onExport = () => {
+		setExportProgress(50);
+		isExporting.current = true;
+		setExportOpen(true);
+	};
+	const onExportDone = () => {
+		isExporting.current = false;
+		setExportOpen(false);
+	};
+
 	const onDelete = async (version) => {
 		const res = await fetch(`${apiRoot}/api/delete`, {
 			method: 'POST',
@@ -350,8 +370,10 @@ export default function App({
 	const animate = time => {
 		if (project.current) {
 			if (project.current.animate) {
-				project.current.animate(getContext());
-				project.current.render(getContext());
+				if (!isExporting.current) {
+					project.current.animate(getContext());
+					project.current.render(getContext());
+				}
 			} else {
 				requestRef.current = null;
 				return;
@@ -433,11 +455,11 @@ export default function App({
 					<ListItemIcon fontSize="small"><OpenInBrowserIcon /></ListItemIcon>
 					<ListItemText>Load</ListItemText>
 				</MenuItem>
-				<MenuItem onClick={() => { menuClose(); alert('exporting!'); }}>
+				<MenuItem onClick={() => { menuClose(); onExport(); }}>
 					<ListItemIcon fontSize="small"><SaveAltIcon /></ListItemIcon>
 					<ListItemText>Export render</ListItemText>
 				</MenuItem>
-				<MenuItem onClick={() => { menuClose(); alert('exporting!'); }}>
+				<MenuItem onClick={() => { menuClose(); alert('exporting!'); }} disabled>
 					<ListItemIcon fontSize="small"><CodeIcon /></ListItemIcon>
 					<ListItemText>Export production build</ListItemText>
 				</MenuItem>
@@ -492,6 +514,32 @@ export default function App({
 					apiRoot={apiRoot}
 					parentId={parentId}
 				/>}
+				<Dialog
+					open={exportOpen}
+					onClose={onExportDone}
+					onClick={e => e.stopPropagation()}
+					onMouseDown={e => e.stopPropagation()}
+					onTouchStart={e => e.stopPropagation()}
+				>
+					<DialogTitle>{"Exporting"}</DialogTitle>
+					<DialogContent>
+						<DialogContentText>
+							Please wait, or make a cup of tea...
+						</DialogContentText>
+						<div>
+							<LinearProgress
+								variant="determinate"
+								value={exportProgress}
+							/>
+							<span>{exportProgress}%</span>
+						</div>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={onExportDone} autoFocus>
+							Cancel
+						</Button>
+					</DialogActions>
+				</Dialog>
 			</div>
 		</div>
 	</>;
