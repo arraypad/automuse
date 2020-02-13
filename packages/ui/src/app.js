@@ -151,13 +151,26 @@ export default function App({
 		startTime: new Date().getTime(),
 	});
 
-	const getContext = () => Object.assign(
-		{
-			time: (new Date().getTime() - context.startTime) / 1000,
-			...context,
-		},
-		config.current,
-	);
+	const getContext = frame => {
+		const fps = config.current.fps || 30;
+
+		let time;
+		if (frame === null) {
+			time = (new Date().getTime() - context.startTime) / 1000;
+			frame = fps * time;
+		} else {
+			time = frame / fps;
+		}
+
+		return Object.assign(
+			{
+				time,
+				frame,
+				...context,
+			},
+			config.current,
+		);
+	};
 
 	const config = React.useRef(originalConfig);
 	let resetConfigJson = JSON.stringify(config);
@@ -291,11 +304,50 @@ export default function App({
 	const isExporting = React.useRef(false);
 	const [exportOpen, setExportOpen] = React.useState(false);
 	const [exportProgress, setExportProgress] = React.useState(50);
-	const onExport = () => {
+	const onExport = async () => {
 		setExportProgress(50);
 		isExporting.current = true;
 		setExportOpen(true);
+
+		const numFrames =  project.current.animate ? config.current.frames || 300 : 1;
+
+		const frames = [];
+		for (let i = 0; i < numFrames; i++) {
+			const ctx = getContext(i);
+
+			if (project.current.animate) {
+				project.current.animate(ctx);
+			}
+
+			const el = project.current.capture(ctx);
+			if (!(el instanceof HTMLCanvasElement)) {
+				alert('Captured element not supported');
+				return;
+			}			
+
+			frames.push(el.toDataURL());
+			setExportProgress(80 * i / numFrames);
+		}
+
+		const res = await fetch(`${apiRoot}/api/render`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				id: parentId,
+				frames,
+			}),
+		});
+
+		setExportProgress(100);
+
+		const { url } = await res.json();
+		window.open(url);
+		isExporting.current = false;
+		setExportOpen(false);
 	};
+
 	const onExportDone = () => {
 		isExporting.current = false;
 		setExportOpen(false);

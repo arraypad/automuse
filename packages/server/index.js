@@ -7,10 +7,20 @@ const { argv } = require('yargs');
 const { existsSync, mkdirSync, readFileSync, writeFileSync } = require('fs');
 const crypto = require('crypto');
 const { execSync } = require('child_process');
+const temp = require('temp');
+const bodyParser = require('body-parser')
+
+temp.track();
 
 let sketchPath = argv._.length === 1 ? argv._[0] : 'default';
 if (!/\.jsx?/i.test(sketchPath)) {
 	sketchPath += '.js';
+}
+
+const port = argv.port || 1234;
+
+function rootUrl() {
+	return `http://localhost:${port}/`;
 }
 
 // create a unique project ID based on the CWD and sketch path to avoid collisions
@@ -48,6 +58,7 @@ if (existsSync(indexPath)) {
 }
 
 const app = express();
+app.use(bodyParser({limit: '1gb'}));
 app.use(cors());
 app.use(express.json());
 
@@ -102,14 +113,33 @@ app.post('/api/delete', (req, res) => {
 	res.json(index);
 });
 
+app.post('/api/render', (req, res) => {
+	const dir = temp.mkdirSync('automuse');
+	let i = 0;
+	for (const frame of req.body.frames) {
+		const image = Buffer.from(frame.substr(22), 'base64');
+		const imagePath = `${dir}/${new String(i).padStart(5, '0')}.png`;
+		writeFileSync(imagePath, image);
+		i++;
+	}
+
+	const outName = `${req.body.id}-${new Date().toISOString()}.mp4`;
+
+	const fps = req.body.fps || 30;
+	execSync(`ffmpeg -framerate ${fps} -i ${dir}/%05d.png -c:v libx264 -pix_fmt yuv420p -crf 18 ${storePath}/${outName}`);
+
+
+	res.json({
+		url: `${rootUrl()}${storePath}/${outName}`,
+	})
+});
+
 app.get('/api/list', (req, res) => {
 	res.json(index);
 });
 
-const port = argv.port || 1234;
-
 if (argv.serveOnly) {
-	console.log(`API listening on http://localhost:${port}/`);
+	console.log(`API listening on ${rootUrl()}`);
 } else {
 	const options = {};
 	const bundler = new Bundler('.automuse.html', options);
