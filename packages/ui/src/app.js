@@ -561,7 +561,6 @@ export default function App({
 							storeSetItem('parentId', version.parentId);
 						}
 						onDelete(version);
-						setLoadOpen(false);
 					}}
 					apiRoot={apiRoot}
 					parentId={parentId}

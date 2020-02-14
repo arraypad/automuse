@@ -1,35 +1,39 @@
 import React from 'react';
+
+import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Divider from '@material-ui/core/Divider';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import Slide from '@material-ui/core/Slide';
 import Typography from '@material-ui/core/Typography';
 import Toolbar from '@material-ui/core/Toolbar';
+
 import { makeStyles } from '@material-ui/core/styles';
+
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
-import AppBar from '@material-ui/core/AppBar';
-import Tooltip from '@material-ui/core/Tooltip';
-import Button from '@material-ui/core/Button';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import { hierarchy as d3hierarchy, tree as d3tree } from 'd3-hierarchy';
 import clsx from 'clsx';
 import {
-  INITIAL_VALUE,
-  ReactSVGPanZoom,
-  POSITION_NONE,
+	INITIAL_VALUE,
+	ReactSVGPanZoom,
+	POSITION_NONE,
 } from 'react-svg-pan-zoom';
 
 const nodeWidth = 100;
 const nodeHeight = 100;
+const previewWidth = 200;
+const previewHeight = 200;
 const sepHorizontal = 30;
 const sepVertical = 30;
 
@@ -45,36 +49,59 @@ const useStyles = makeStyles(theme => ({
 		fill: 'none',
 		stroke: '#bbb',
 	},
-	node: {
-		cursor: 'hand',
-		display: 'block',
-		width: nodeWidth,
-		height: nodeHeight,
-		background: '#fff',
-		backgroundRepeat: 'no-repeat',
-		backgroundPosition: 'center',
-		border: '1px solid #bbb',
+	nodeBorder: {
+		stroke: '#bbb',
+		fill: '#fff',
+		stokeWidth: 2,
 		'&:hover': {
-			border: '1px solid #000',
+			stroke: '#000',
 		},
 	},
 	active: {
-		border: '1px solid #000',
+		stroke: '#000',
+	},
+	node: {
+		cursor: 'hand',
+	},
+	aboutBody: {
+		position: 'relative',
+	},
+	aboutContainer: {
+		display: 'flex',
+		margin: theme.spacing(2),
+		alignItems: 'center',
+	},
+	aboutLeft: {
+		width: '100%',
+	},
+	aboutRight: {
+		marginRight: theme.spacing(2),
+	},
+	aboutImg: {
+		display: 'block',
+		width: '100%',
+		height: 'auto',
+		background: '#fff',
+		border: '1px solid #bbb',
 	},
 	about: {
-		minWidth: '500px',
+		// minWidth: '500px',
+	},
+	actions: {
+		padding: theme.spacing(2),
+		display: 'flex',
+		flexFlow: 'row',
+		justifyContent: 'flex-end',
+		'& > *': {
+			marginLeft: theme.spacing(1),
+		},
 	},
 	configContainer: {
-		position: 'relative',
+		margin: theme.spacing(2),
 	},
 	configArea: {
 		width: '100%',
 		minHeight: '200px',
-	},
-	configCopy: {
-		position: 'absolute',
-		right: theme.spacing(3),
-		bottom: theme.spacing(1),
 	},
 }));
 
@@ -82,131 +109,11 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 	return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function ConfigView({ config }) {
-	const classes = useStyles();
-
-	const textRef = React.useRef(null);
-	return <div className={classes.configContainer}>
-		<textarea
-			className={classes.configArea}
-			ref={textRef}
-			wrap="off"
-			readOnly
-			value={JSON.stringify(config, 0, 4)}
-		/>
-		<Button
-			className={classes.configCopy}
-			color="primary"
-			variant="contained"
-			startIcon={<FileCopyIcon />}
-			onClick={() => {
-				textRef.current.select();
-				document.execCommand('copy');
-				textRef.current.blur();
-			}}
-		>
-			Copy
-		</Button>
-	</div>;
-}
-
-function VersionLabel({ data, apiRoot, onLoadVersion, onDeleteVersion, active }) {
-	const classes = useStyles();
-	const [anchorEl, setAnchorEl] = React.useState(null);
-
-	const menuOpen = event => {
-		setAnchorEl(event.currentTarget);
-	};
-
-	const menuClose = () => {
-		setAnchorEl(null);
-	};
-
-	const [aboutOpen, setAboutOpen] = React.useState(false);
-	const [deleteOpen, setDeleteOpen] = React.useState(false);
-
-	return <div key={data.id}>
-		<a 
-			className={clsx(classes.node, active && classes.active)}
-			onClick={menuOpen}
-			style={{
-				backgroundImage: `url(${apiRoot}/${data.image})`,
-				backgroundSize: 'contain',
-			}}
-		>
-		</a>
-		<Menu
-			anchorEl={anchorEl}
-			keepMounted
-			open={Boolean(anchorEl)}
-			onClose={menuClose}
-		>
-			<MenuItem
-				onClick={() => { menuClose(); onLoadVersion(data); }}
-				disabled={active}
-			>
-				Load version
-			</MenuItem>
-			<MenuItem onClick={() => { menuClose(); setAboutOpen(true); }}>
-				About
-			</MenuItem>
-			<MenuItem onClick={() => { menuClose(); window.open(`${apiRoot}/${data.image}`); }}>
-				View in new tab
-			</MenuItem>
-			<MenuItem onClick={() => {
-				menuClose();
-				setDeleteOpen(true);
-			}}>
-				Delete
-			</MenuItem>
-		</Menu>
-		<Dialog
-			open={aboutOpen}
-			onClose={() => setAboutOpen(false)}
-			onClick={e => e.stopPropagation()}
-			onMouseDown={e => e.stopPropagation()}
-			onTouchStart={e => e.stopPropagation()}
-		>
-			<DialogTitle>About version</DialogTitle>
-			<List className={classes.about}>
-				<ListItem><ListItemText primary="ID" secondary={data.id} /></ListItem>
-				<ListItem><ListItemText primary="Git revision" secondary={data.revision || '[no revision]'} /></ListItem>
-				<ListItem>
-					<ListItemText
-						primary="Config"
-						secondary={<ConfigView config={data.config} />}
-						secondaryTypographyProps={{ component: 'div' }}
-					/>
-				</ListItem>
-			</List>
-		</Dialog>
-		<Dialog
-			open={deleteOpen}
-			onClose={() => setDeleteOpen(false)}
-			onClick={e => e.stopPropagation()}
-			onMouseDown={e => e.stopPropagation()}
-			onTouchStart={e => e.stopPropagation()}
-		>
-			<DialogTitle>{"Delete version"}</DialogTitle>
-			<DialogContent>
-				<DialogContentText>
-					This will permanently delete this version, are you sure you want to continue?
-				</DialogContentText>
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={() => setDeleteOpen(false)}>
-					Cancel
-				</Button>
-				<Button onClick={() => onDeleteVersion(data)} color="primary" autoFocus>
-					Delete
-				</Button>
-			</DialogActions>
-		</Dialog>
-	</div>;
-}
-
 function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion, parentId }) {
 	const classes = useStyles();
+
+	const [selectedOpen, setSelectedOpen] = React.useState(null);
+	const [selectedDelete, setSelectedDelete] = React.useState(null);
 
 	// calculate tree layout
 	const defaultViewWidth = nodeWidth * 5;
@@ -249,21 +156,24 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion
 			/>);
 		}
 
-		nodes.push(<foreignObject
-			key={`node-${i}`}
-			x={lx}
-			y={ty}
-			width={nodeWidth}
-			height={nodeHeight}
-		>
-			<VersionLabel
-				data={d.data}
-				apiRoot={apiRoot}
-				onLoadVersion={onLoadVersion}
-				onDeleteVersion={onDeleteVersion}
-				active={d.data.id === parentId}
+		nodes.push(<g key={`node-${i}`}>
+			<rect
+				className={clsx(classes.nodeBorder, d.data.id === parentId && classes.active)}
+				x={lx}
+				y={ty}
+				width={nodeWidth}
+				height={nodeHeight}
 			/>
-		</foreignObject>);
+			<image
+				className={classes.node}
+				x={lx}
+				y={ty}
+				width={nodeWidth}
+				height={nodeHeight}
+				href={`${apiRoot}/${d.data.image}`}
+				onClick={e => setSelectedOpen(d.data)}
+			/>
+		</g>);
 
 		i++;
 	}
@@ -283,30 +193,113 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion
 		}
 	}, [viewerRef]);
 
-	return <ReactSVGPanZoom
-		ref={viewerRef}
-		width={width}
-		height={height}
-		tool="auto"
-		toolbarProps={{position: POSITION_NONE}}
-		miniatureProps={{position: POSITION_NONE}}
-		detectAutoPan={false}
-		value={panZoomValue}
-		onChangeValue={setPanZoomValue}
-		onChangeTool={() => {}}
-		background="#fff"
-	>
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			xmlnsXlink="http://www.w3.org/1999/xlink"
-			viewBox={viewBox.join(' ')}
+	return <>
+		<ReactSVGPanZoom
+			ref={viewerRef}
+			width={width}
+			height={height}
+			tool="auto"
+			toolbarProps={{position: POSITION_NONE}}
+			miniatureProps={{position: POSITION_NONE}}
+			detectAutoPan={false}
+			value={panZoomValue}
+			onChangeValue={setPanZoomValue}
+			onChangeTool={() => {}}
+			background="#fff"
 		>
-			<g>
-				{nodes}
-				{paths}
-			</g>
-		</svg>
-	</ReactSVGPanZoom>;
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				xmlnsXlink="http://www.w3.org/1999/xlink"
+				viewBox={viewBox.join(' ')}
+			>
+				<g>
+					{nodes}
+					{paths}
+				</g>
+			</svg>
+		</ReactSVGPanZoom>
+		<Dialog
+			open={Boolean(selectedOpen)}
+			onClose={() => setSelectedOpen(null)}
+			onClick={e => e.stopPropagation()}
+			onMouseDown={e => e.stopPropagation()}
+			onTouchStart={e => e.stopPropagation()}
+		>
+			{selectedOpen && (<div className={classes.aboutDialog}>
+				<DialogTitle>View version</DialogTitle>
+				<div className={classes.aboutContainer}>
+					<div className={classes.aboutLeft}>
+						<List className={classes.about}>
+							<ListItem><ListItemText primary="ID" secondary={selectedOpen.id} /></ListItem>
+							<ListItem><ListItemText primary="Git revision" secondary={selectedOpen.revision || '[no revision]'} /></ListItem>
+						</List>
+					</div>
+					<div className={classes.aboutRight}>
+						<img
+							className={classes.aboutImg}
+							src={`${apiRoot}/${selectedOpen.image}`}
+						/>
+					</div>
+				</div>
+				<div className={classes.configContainer}>
+					<List className={classes.about}>
+						<ListItem>
+							<ListItemText
+								primary="Config"
+								secondary={<textarea
+									className={classes.configArea}
+									wrap="off"
+									readOnly
+									value={JSON.stringify(selectedOpen.config, 0, 4)}
+								/>}
+								secondaryTypographyProps={{ component: 'div' }}
+							/>
+						</ListItem>
+					</List>
+				</div>
+				<div className={classes.actions}>
+					<Button
+						color="secondary"
+						onClick={() => { setSelectedDelete(selectedOpen); }}
+					>
+						Delete
+					</Button>
+					<Button
+						color="primary"
+						variant="contained"
+						onClick={() => { onLoadVersion(selectedOpen); }}
+						disabled={selectedOpen.id === parentId}
+					>
+						Load
+					</Button>
+				</div>
+			</div>)}
+		</Dialog>
+		<Dialog
+			open={Boolean(selectedDelete)}
+			onClose={() => setSelectedDelete(null)}
+			onClick={e => e.stopPropagation()}
+			onMouseDown={e => e.stopPropagation()}
+			onTouchStart={e => e.stopPropagation()}
+		>
+			{selectedDelete && (<>
+				<DialogTitle>{"Delete version"}</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						This will permanently delete version {selectedDelete.id}, are you sure you want to continue?
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setSelectedDelete(null)}>
+						Cancel
+					</Button>
+					<Button onClick={() => onDeleteVersion(selectedDelete)} color="primary" autoFocus>
+						Delete
+					</Button>
+				</DialogActions>
+			</>)}
+		</Dialog>
+	</>;
 }
 
 export default function LoadDialog({ open, handleClose, versions, width, height, apiRoot, onLoadVersion, onDeleteVersion, parentId }) {
