@@ -3,6 +3,7 @@ export const config = {
 	width: 300,
 	height: 300,
 	backgroundColor: '#fff',
+	backgroundEnabled: false,
 	color: '#f00',
 	rotation: {
 		enabled: true,
@@ -20,8 +21,11 @@ export class Sketch {
 
 	render({ width, height, time }) {
 		this.ctx.clearRect(0, 0, width, height);
-		this.ctx.fillStyle = config.backgroundColor;
-		this.ctx.fillRect(0, 0, width, height);
+
+		if (config.backgroundEnabled) {
+			this.ctx.fillStyle = config.backgroundColor;
+			this.ctx.fillRect(0, 0, width, height);
+		}
 
 		this.ctx.save();
 
