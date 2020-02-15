@@ -259,13 +259,13 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion
 				</div>
 				<div className={classes.actions}>
 					<Button
-						color="secondary"
+						color="primary"
 						onClick={() => { setSelectedDelete(selectedOpen); }}
 					>
 						Delete
 					</Button>
 					<Button
-						color="primary"
+						color="secondary"
 						variant="contained"
 						onClick={() => { onLoadVersion(selectedOpen); }}
 						disabled={selectedOpen.id === parentId}

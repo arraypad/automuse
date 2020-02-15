@@ -2,18 +2,38 @@ import 'regenerator-runtime/runtime';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import { App, assignAll } from './app';
+
+const theme = createMuiTheme({
+	palette: {
+		primary: {
+			light: '#a4a4a4',
+			main: '#757575',
+			dark: '#494949',
+			contrastText: '#fff',
+		},
+		secondary: {
+			light: '#ff60f7',
+			main: '#ff00c4',
+			dark: '#c70093',
+			contrastText: '#fff',
+		},
+	},
+});
 
 export function runApp(Sketch, config, projectId) {
 	ReactDOM.render(
 		<>
 			<CssBaseline />
-			<App
-				sketch={Sketch}
-				originalConfig={config}
-				projectId={projectId}
-			/>
+			<ThemeProvider theme={theme}>
+				<App
+					sketch={Sketch}
+					originalConfig={config}
+					projectId={projectId}
+				/>
+			</ThemeProvider>
 		</>,
 		document.getElementById("container"),
 	);

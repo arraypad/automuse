@@ -580,7 +580,7 @@ export function App({
 					<div className={classes.drawerHeader} />
 				</Drawer>
 				<div className={classes.actions}>
-					<Fab variant="extended" color="primary" onClick={onSave}>
+					<Fab variant="extended" color="secondary" onClick={onSave}>
 						<SaveIcon className={classes.save} />
 						Save
 					</Fab>
