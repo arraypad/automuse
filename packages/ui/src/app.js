@@ -21,7 +21,7 @@ import Typography from '@material-ui/core/Typography';
 
 import CloseIcon from '@material-ui/icons/Close';
 import CodeIcon from '@material-ui/icons/Code';
-import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
+import ViewListIcon from '@material-ui/icons/ViewList';
 import MenuIcon from '@material-ui/icons/Menu';
 import SaveIcon from '@material-ui/icons/Save';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
@@ -537,13 +537,13 @@ export function App({
 			>
 				<MenuItem onClick={() => { menuClose(); onSave(); }}>
 					<ListItemIcon fontSize="small"><SaveIcon /></ListItemIcon>
-					<ListItemText>Save</ListItemText>
+					<ListItemText>Save version</ListItemText>
 				</MenuItem>
 				<MenuItem onClick={() => { menuClose(); setLoadOpen(true); }}
 					disabled={versions.length === 0}
 				>
-					<ListItemIcon fontSize="small"><OpenInBrowserIcon /></ListItemIcon>
-					<ListItemText>Load</ListItemText>
+					<ListItemIcon fontSize="small"><ViewListIcon /></ListItemIcon>
+					<ListItemText>View versions</ListItemText>
 				</MenuItem>
 				<MenuItem onClick={() => { menuClose(); onExport(); }}>
 					<ListItemIcon fontSize="small"><SaveAltIcon /></ListItemIcon>
