@@ -224,7 +224,7 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion
 			onClick={e => e.stopPropagation()}
 			onMouseDown={e => e.stopPropagation()}
 			onTouchStart={e => e.stopPropagation()}
-		>
+		><div>
 			{selectedOpen && (<div className={classes.aboutDialog}>
 				<DialogTitle>View version</DialogTitle>
 				<div className={classes.aboutContainer}>
@@ -274,14 +274,14 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion
 					</Button>
 				</div>
 			</div>)}
-		</Dialog>
+		</div></Dialog>
 		<Dialog
 			open={Boolean(selectedDelete)}
 			onClose={() => setSelectedDelete(null)}
 			onClick={e => e.stopPropagation()}
 			onMouseDown={e => e.stopPropagation()}
 			onTouchStart={e => e.stopPropagation()}
-		>
+		><div>
 			{selectedDelete && (<>
 				<DialogTitle>{"Delete version"}</DialogTitle>
 				<DialogContent>
@@ -298,7 +298,7 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion
 					</Button>
 				</DialogActions>
 			</>)}
-		</Dialog>
+		</div></Dialog>
 	</>;
 }
 
