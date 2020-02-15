@@ -92,7 +92,7 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-function assignAll(source, dest) {
+export function assignAll(source, dest) {
 	for (const [k, v] of Object.entries(dest)) {
 		switch (typeof(source[k])) {
 		case 'undefined':
@@ -107,7 +107,7 @@ function assignAll(source, dest) {
 	}
 }
 
-export default function App({
+export function App({
 	sketch,
 	originalConfig,
 	projectId,
@@ -148,6 +148,7 @@ export default function App({
 
 	const [context, setContext] = React.useState({
 		startTime: new Date().getTime(),
+		exportWorkers: 4,
 	});
 
 	const getContext = frame => {
@@ -161,14 +162,13 @@ export default function App({
 			time = frame / fps;
 		}
 
-		return Object.assign(
-			{
-				time,
-				frame,
-				...context,
-			},
-			config.current,
-		);
+		const ctx = {
+			time,
+			frame,
+			...context,
+		};
+
+		return Object.assign(ctx, config.current);
 	};
 
 	const config = React.useRef(originalConfig);
@@ -267,7 +267,7 @@ export default function App({
 	const [versions, setVersions] = React.useState([]);
 
 	const onSave = async () => {
-		const dataUrl = canvas.current.toDataURL();
+		const dataUrl = context.canvas.toDataURL();
 		const res = await fetch(`${apiRoot}/api/save`, {
 			method: 'POST',
 			headers: {
@@ -291,24 +291,83 @@ export default function App({
 	const [exportOpen, setExportOpen] = React.useState(false);
 	const [exportProgress, setExportProgress] = React.useState(50);
 	const onExport = async () => {
-		setExportProgress(50);
+		setExportProgress(0);
 		isExporting.current = true;
 		setExportOpen(true);
 
 		const numFrames =  project.current.animate ? config.current.frames || 300 : 1;
+		const frames = new Array(numFrames);
 
-		const frames = [];
-		for (let i = 0; i < numFrames; i++) {
-			const ctx = getContext(i);
+		const ctx = getContext();
+		const startTime = new Date();
 
-			if (project.current.animate) {
-				project.current.animate(ctx);
+		if (window.Worker && context.exportWorkers > 0) {
+			const workers = [];
+
+			await (() => new Promise((resolve, reject) => {
+				let renderedFrames = 0;
+
+				for (let i = 0; i < context.exportWorkers; i++) {
+					const canvas = document.createElement('canvas');
+					canvas.width = ctx.width;
+					canvas.height = ctx.height;
+
+					const offscreen = canvas.transferControlToOffscreen()
+
+					const worker = new Worker(`${apiRoot}/.worker.js`);
+
+					worker.onmessage = async (e) => {
+						const { frame, dataUrl } = e.data;
+						frames[frame] = dataUrl;
+						setExportProgress(80 * ++renderedFrames / numFrames);
+						if (renderedFrames === numFrames) {
+							resolve();
+						}
+					};
+
+					worker.postMessage({
+						handler: 'init',
+						ctx: {
+							...ctx,
+							canvas: offscreen,
+						},
+					}, [offscreen]);
+
+					worker.postMessage({
+						handler: 'setConfig',
+						ctx: config.current,
+					});
+
+					workers.push({worker, canvas});
+				}
+
+				for (let i = 0; i < numFrames; i++) {
+					const { worker } = workers[i % context.exportWorkers];
+
+					const ctx = getContext(i);
+					delete ctx.canvas;
+
+					worker.postMessage({handler: 'render', ctx});
+				}
+			}))();
+
+			workers.map(({ worker }) => worker.terminate());
+			workers.splice(0, workers.length);
+		} else {
+			for (let i = 0; i < numFrames; i++) {
+				const ctx = getContext(i);
+
+				if (project.current.animate) {
+					project.current.animate(ctx);
+				}
+
+				project.current.render(ctx);
+				frames[i] = context.canvas.toDataURL();
+				setExportProgress(80 * i / numFrames);
 			}
-
-			project.current.render(ctx);
-			frames.push(canvas.current.toDataURL());
-			setExportProgress(80 * i / numFrames);
 		}
+
+		console.log('Rendered in ', (new Date() - startTime) / 1000, 'seconds');
 
 		const res = await fetch(`${apiRoot}/api/render`, {
 			method: 'POST',

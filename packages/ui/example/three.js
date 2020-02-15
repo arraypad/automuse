@@ -37,7 +37,6 @@ export class Sketch {
 
 		this.renderer = new THREE.WebGLRenderer({ canvas });
 		this.renderer.setClearColor(config.clearColor, 1.0);
-		this.renderer.setSize(width, height);
 
 		this.mesh = new THREE.Mesh(
 			new THREE.BoxBufferGeometry(1, 1, 1),
@@ -62,7 +61,7 @@ export class Sketch {
 		this.mesh.rotation.z += config.rotation.speed.z;
 	}
 
-	render() {
+	render(ctx) {
 		// update properties which aren't directly linked to config
 		// (e.g. the constructor makes a copy)
 		this.renderer.setClearColor(config.clearColor, 1.0);
