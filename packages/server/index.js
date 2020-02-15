@@ -8,7 +8,6 @@ const { existsSync, mkdirSync, readFileSync, writeFileSync } = require('fs');
 const crypto = require('crypto');
 const { execSync } = require('child_process');
 const temp = require('temp');
-const bodyParser = require('body-parser')
 
 temp.track();
 
@@ -59,7 +58,7 @@ if (existsSync(indexPath)) {
 }
 
 const app = express();
-app.use(bodyParser({limit: '1gb'}));
+app.use(express.urlencoded({extended: false, limit: '1gb'}));
 app.use(cors());
 app.use(express.json());
 
@@ -138,16 +137,14 @@ app.get('/api/list', (req, res) => {
 	res.json(index);
 });
 
-if (argv.serveOnly) {
-	console.log(`API listening on ${rootUrl()}`);
-} else {
-	const options = {};
-	const bundler = new Bundler([
-		`${storePath}/index.html`,
-		`${storePath}/.automuse.js`,
-		`${storePath}/.worker.js`,
-	], options);
-	app.use(bundler.middleware());
-}
+console.log(`Listening on ${rootUrl()}`);
+
+const options = {};
+const bundler = new Bundler([
+	`${storePath}/index.html`,
+	`${storePath}/.automuse.js`,
+	`${storePath}/.worker.js`,
+], options);
+app.use(bundler.middleware());
 
 app.listen(port);
