@@ -7,15 +7,20 @@ const entryHtml = `<html>
 </head>
 <body>
 	<div id="container"></div>
-	<script>window
 	<script src=".automuse.js"></script>
 </body>
 </html>`;
 
 const entryJs = (projectId, sketchName) => `
-import { runApp } from '@automuse/ui';
+import { runApp } from 'automuse-ui';
 import { Sketch, config } from '../${sketchName}';
-runApp(Sketch, config, projectId);
+runApp(Sketch, config, '${projectId}');
+`;
+
+const workerJs = (sketchName) => `
+import { worker } from 'automuse-ui';
+import { Sketch, config } from '../${sketchName}';
+worker(Sketch, config);
 `;
 
 const skeletonJs = `
@@ -62,4 +67,4 @@ export class Sketch {
 }
 `;
 
-module.exports = { entryHtml, entryJs, skeletonJs };
+module.exports = { entryHtml, entryJs, workerJs, skeletonJs };

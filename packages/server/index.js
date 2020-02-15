@@ -35,10 +35,11 @@ if (argv.serveOnly) {
 	// we're only serving the API, the frontend is running separately
 } else {
 	// write entrypoints
-	const { entryHtml, entryJs, skeletonJs } = require('./templates');
+	const { entryHtml, entryJs, workerJs, skeletonJs } = require('./templates');
 
 	writeFileSync(`${storePath}/index.html`, entryHtml);
 	writeFileSync(`${storePath}/.automuse.js`, entryJs(projectId, sketchPath));
+	writeFileSync(`${storePath}/.worker.js`, workerJs(sketchPath));
 
 	if (!existsSync(sketchPath)) {
 		writeFileSync(sketchPath, skeletonJs);
@@ -62,7 +63,7 @@ app.use(bodyParser({limit: '1gb'}));
 app.use(cors());
 app.use(express.json());
 
-app.use(`/${storePath}`, express.static(storePath));
+app.use(`/`, express.static(storePath));
 
 function getRevision() {
 	try {
@@ -128,9 +129,8 @@ app.post('/api/render', (req, res) => {
 	const fps = req.body.fps || 30;
 	execSync(`ffmpeg -framerate ${fps} -i ${dir}/%05d.png -c:v libx264 -pix_fmt yuv420p -crf 18 ${storePath}/${outName}`);
 
-
 	res.json({
-		url: `${rootUrl()}${storePath}/${outName}`,
+		url: `${rootUrl()}${outName}`,
 	})
 });
 
@@ -142,7 +142,11 @@ if (argv.serveOnly) {
 	console.log(`API listening on ${rootUrl()}`);
 } else {
 	const options = {};
-	const bundler = new Bundler('.automuse.html', options);
+	const bundler = new Bundler([
+		`${storePath}/index.html`,
+		`${storePath}/.automuse.js`,
+		`${storePath}/.worker.js`,
+	], options);
 	app.use(bundler.middleware());
 }
 
