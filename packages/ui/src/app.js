@@ -12,6 +12,8 @@ import Drawer from '@material-ui/core/Drawer';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
@@ -287,12 +289,20 @@ export function App({
 		setParentId(versions[versions.length - 1].id);
 	};
 
+	const [selectExportOpen, setSelectExportOpen] = React.useState(false);
+	const exportFormats = [
+		{id: 'png', animated: false, desc: 'PNG'},
+		{id: 'pngz', animated: true, desc: 'PNG sequence in zip'},
+		{id: 'gif', animated: true, desc: 'GIF'},
+		{id: 'mp4', animated: true, desc: 'MP4'},
+	];
+
 	const isExporting = React.useRef(false);
 	const [exportOpen, setExportOpen] = React.useState(false);
 	const [exportProgress, setExportProgress] = React.useState(50);
 	const [exportUrl, setExportUrl] = React.useState(null);
 	const [exportTime, setExportTime] = React.useState(null);
-	const onExport = async () => {
+	const onExport = async (formatId) => {
 		setExportUrl(null);
 		setExportProgress(0);
 		isExporting.current = true;
@@ -547,11 +557,11 @@ export function App({
 					disabled={versions.length === 0}
 				>
 					<ListItemIcon fontSize="small"><ViewListIcon /></ListItemIcon>
-					<ListItemText>View versions</ListItemText>
+					<ListItemText>View versions...</ListItemText>
 				</MenuItem>
-				<MenuItem onClick={() => { menuClose(); onExport(); }}>
+				<MenuItem onClick={() => { menuClose(); setSelectExportOpen(true); }}>
 					<ListItemIcon fontSize="small"><SaveAltIcon /></ListItemIcon>
-					<ListItemText>Export render</ListItemText>
+					<ListItemText>Export render...</ListItemText>
 				</MenuItem>
 				<MenuItem onClick={() => { menuClose(); alert('exporting!'); }} disabled>
 					<ListItemIcon fontSize="small"><CodeIcon /></ListItemIcon>
@@ -607,6 +617,32 @@ export function App({
 					apiRoot={apiRoot}
 					parentId={parentId}
 				/>}
+				<Dialog
+					open={selectExportOpen}
+					onClose={() => setSelectExportOpen(false)}
+					onClick={e => e.stopPropagation()}
+					onMouseDown={e => e.stopPropagation()}
+					onTouchStart={e => e.stopPropagation()}
+				>
+					<DialogTitle>{"Choose export format"}</DialogTitle>
+					<DialogContent>
+						<List>
+							{project.current && exportFormats.map(({ id, animated, desc }) => (
+								<ListItem
+									button
+									key={id}
+									onClick={() => {
+										setSelectExportOpen(false);
+										onExport(id);
+									}}
+									disabled={animated != !!project.current.animate}
+								>
+									<ListItemText primary={desc} />
+								</ListItem>
+							))}
+						</List>
+					</DialogContent>
+				</Dialog>
 				<Dialog
 					open={exportOpen}
 					onClose={onExportDone}
