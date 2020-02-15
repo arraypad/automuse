@@ -66,12 +66,12 @@ const useStyles = makeStyles(theme => ({
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
+		background: '#eee',
+	},
+	inner: {
 		background: 'linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), white',
 		backgroundPosition: '0px 0, 5px 5px',
 		backgroundSize: '10px 10px, 10px 10px',
-	},
-	inner: {
-		background: '#fff',
 		boxShadow: '10px 10px 23px 0px rgba(0,0,0,0.50)',
 	},
 	toolbar: theme.mixins.toolbar,
