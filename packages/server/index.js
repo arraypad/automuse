@@ -30,19 +30,14 @@ if (!existsSync(storePath)) {
 	mkdirSync(storePath);
 }
 
-if (argv.serveOnly) {
-	// we're only serving the API, the frontend is running separately
-} else {
-	// write entrypoints
-	const { entryHtml, entryJs, workerJs, skeletonJs } = require('./templates');
+const { entryHtml, entryJs, workerJs, skeletonJs } = require('./templates');
 
-	writeFileSync(`${storePath}/index.html`, entryHtml);
-	writeFileSync(`${storePath}/.automuse.js`, entryJs(projectId, sketchPath));
-	writeFileSync(`${storePath}/.worker.js`, workerJs(sketchPath));
+writeFileSync(`${storePath}/index.html`, entryHtml);
+writeFileSync(`${storePath}/.automuse.js`, entryJs(projectId, sketchPath));
+writeFileSync(`${storePath}/.worker.js`, workerJs(sketchPath));
 
-	if (!existsSync(sketchPath)) {
-		writeFileSync(sketchPath, skeletonJs);
-	}
+if (!existsSync(sketchPath)) {
+	writeFileSync(sketchPath, skeletonJs);
 }
 
 // load index
@@ -58,9 +53,9 @@ if (existsSync(indexPath)) {
 }
 
 const app = express();
-app.use(express.urlencoded({extended: false, limit: '1gb'}));
 app.use(cors());
-app.use(express.json());
+app.use(express.urlencoded({extended: false, limit: '1gb'}));
+app.use(express.json({limit: '1gb'}));
 
 app.use(`/`, express.static(storePath));
 
@@ -77,13 +72,14 @@ app.post('/api/save', (req, res) => {
 	const id = new Date().toISOString();
 
 	const image = Buffer.from(req.body.image.substr(22), 'base64');
-	const imagePath = `${storePath}/${id}.png`;
+	const imageName = `${id}.png`;
+	const imagePath = `${storePath}/${imageName}`;
 	writeFileSync(imagePath, image);
 
 	index.push({
 		id,
 		parentId: req.body.parentId,
-		image: imagePath,
+		image: imageName,
 		config: req.body.config,
 		revision: getRevision(),
 	});
