@@ -10,23 +10,11 @@ export const config = {
 };
 
 export class Sketch {
-	constructor({ width, height, document, container }) {
-		this.canvas = document.createElement('canvas');
-		this.canvas.width = width;
-		this.canvas.height = height;
-
-		this.ctx = this.canvas.getContext('2d');
-
-		container.appendChild(this.canvas);
+	constructor({ width, height, document, canvas }) {
+		this.ctx = canvas.getContext('2d');
 	}
 
-	destroy({ container }) {
-		container.removeChild(this.canvas);
-	}
-
-	resize({ width, height }) {
-		this.canvas.width = width;
-		this.canvas.height = height;
+	animate() {
 	}
 
 	render({ width, height, time }) {
@@ -47,9 +35,5 @@ export class Sketch {
 
 		// clear rotation
 		this.ctx.restore();
-	}
-
-	capture() {
-		return this.canvas;
 	}
 }

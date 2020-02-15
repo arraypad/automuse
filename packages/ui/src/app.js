@@ -147,7 +147,6 @@ export default function App({
 	 */
 
 	const [context, setContext] = React.useState({
-		document: document,
 		startTime: new Date().getTime(),
 	});
 
@@ -155,7 +154,7 @@ export default function App({
 		const fps = config.current.fps || 30;
 
 		let time;
-		if (frame === null) {
+		if (frame === undefined) {
 			time = (new Date().getTime() - context.startTime) / 1000;
 			frame = fps * time;
 		} else {
@@ -229,20 +228,17 @@ export default function App({
 
 			return context;
 		});
+
+		if (container) {
+			updateDimensions();
+		}
 	}, []);
 
 	const innerRef = React.useCallback(inner => {
-		setContext(prevContext => {
-			const context = {
-				...prevContext,
-			};
-
-			if (inner) {
-				context.container = inner;
-			}
-
-			return context;
-		});
+		setContext(prevContext => ({
+			...prevContext,
+			canvas: inner,
+		}));
 	}, []);
 
 	/*
@@ -250,7 +246,7 @@ export default function App({
 	 */
 
 	React.useEffect(() => {
-		if (context.container) {
+		if (context.canvas) {
 			project.current = new sketch(getContext());
 
 			if (!project.current.animate) {
@@ -259,10 +255,6 @@ export default function App({
 		}
 
 		return () => {
-			if (project.current) {
-				project.current.destroy(context);
-			}
-
 			project.current = null;
 		};
 	}, [context]);
@@ -275,13 +267,7 @@ export default function App({
 	const [versions, setVersions] = React.useState([]);
 
 	const onSave = async () => {
-		const el = project.current.capture(getContext());
-		if (!(el instanceof HTMLCanvasElement)) {
-			alert('Captured element not supported');
-			return;
-		}			
-
-		const dataUrl = el.toDataURL();
+		const dataUrl = canvas.current.toDataURL();
 		const res = await fetch(`${apiRoot}/api/save`, {
 			method: 'POST',
 			headers: {
@@ -319,13 +305,8 @@ export default function App({
 				project.current.animate(ctx);
 			}
 
-			const el = project.current.capture(ctx);
-			if (!(el instanceof HTMLCanvasElement)) {
-				alert('Captured element not supported');
-				return;
-			}			
-
-			frames.push(el.toDataURL());
+			project.current.render(ctx);
+			frames.push(canvas.current.toDataURL());
 			setExportProgress(80 * i / numFrames);
 		}
 
@@ -448,13 +429,11 @@ export default function App({
 	 * Render
 	 */
 
-	const getInner = ({ width, height }) => <div
+	const getInner = ({ width, height }) => <canvas
 		ref={innerRef}
 		className={classes.inner}
-		style={{
-			width: `${width}px`,
-			height: `${height}px`,
-		}}
+		width={width}
+		height={height}
 	/>;
 
 	return <>
