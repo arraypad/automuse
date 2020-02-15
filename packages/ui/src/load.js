@@ -205,13 +205,14 @@ function TreeView({ root, width, height, apiRoot, onLoadVersion, onDeleteVersion
 			value={panZoomValue}
 			onChangeValue={setPanZoomValue}
 			onChangeTool={() => {}}
-			background="#fff"
+			background="#eee"
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				xmlnsXlink="http://www.w3.org/1999/xlink"
 				viewBox={viewBox.join(' ')}
 			>
+				<rect x={viewBox[0]} y={viewBox[1]} width={viewBox[2]} height={viewBox[3]} fill="#eee" />
 				<g>
 					{nodes}
 					{paths}
