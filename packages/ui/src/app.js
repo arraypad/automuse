@@ -290,7 +290,10 @@ export function App({
 	const isExporting = React.useRef(false);
 	const [exportOpen, setExportOpen] = React.useState(false);
 	const [exportProgress, setExportProgress] = React.useState(50);
+	const [exportUrl, setExportUrl] = React.useState(null);
+	const [exportTime, setExportTime] = React.useState(null);
 	const onExport = async () => {
+		setExportUrl(null);
 		setExportProgress(0);
 		isExporting.current = true;
 		setExportOpen(true);
@@ -367,7 +370,7 @@ export function App({
 			}
 		}
 
-		console.log('Rendered in ', (new Date() - startTime) / 1000, 'seconds');
+		const renderTime = (new Date() - startTime) / 1000;
 
 		const res = await fetch(`${apiRoot}/api/render`, {
 			method: 'POST',
@@ -380,12 +383,13 @@ export function App({
 			}),
 		});
 
-		setExportProgress(100);
+		const encodeTime = (new Date() - startTime) / 1000 - renderTime;
+
+		setExportTime({render: renderTime, encode: encodeTime});
 
 		const { url } = await res.json();
-		window.open(url);
-		isExporting.current = false;
-		setExportOpen(false);
+		setExportUrl(url);
+		setExportProgress(100);
 	};
 
 	const onExportDone = () => {
@@ -612,20 +616,33 @@ export function App({
 				>
 					<DialogTitle>{"Exporting"}</DialogTitle>
 					<DialogContent>
-						<DialogContentText>
-							Please wait, or make a cup of tea...
-						</DialogContentText>
-						<div>
-							<LinearProgress
-								variant="determinate"
-								value={exportProgress}
-							/>
-							<span>{exportProgress}%</span>
-						</div>
+						{exportUrl ? (
+							<DialogContentText>
+								<p>
+									Export finished
+										(render={exportTime.render.toFixed(2)}s,
+										encode={exportTime.encode.toFixed(2)}s).
+								</p>
+								<p>
+									<a target="_blank" href={exportUrl}>Here your go!</a>
+								</p>
+							</DialogContentText>
+						) : (<>
+							<DialogContentText>
+								Please wait, or make a cup of tea...
+							</DialogContentText>
+							<div>
+								<LinearProgress
+									variant="determinate"
+									value={exportProgress}
+								/>
+								<span>{exportProgress.toFixed(2)}%</span>
+							</div>
+						</>)}
 					</DialogContent>
 					<DialogActions>
 						<Button onClick={onExportDone} autoFocus>
-							Cancel
+							{exportUrl ? 'Done' : 'Cancel'}
 						</Button>
 					</DialogActions>
 				</Dialog>
