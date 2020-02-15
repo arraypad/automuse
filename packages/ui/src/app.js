@@ -291,10 +291,9 @@ export function App({
 
 	const [selectExportOpen, setSelectExportOpen] = React.useState(false);
 	const exportFormats = [
-		{id: 'png', animated: false, desc: 'PNG'},
-		{id: 'pngz', animated: true, desc: 'PNG sequence in zip'},
-		{id: 'gif', animated: true, desc: 'GIF'},
-		{id: 'mp4', animated: true, desc: 'MP4'},
+		{id: 'png', desc: 'PNG'},
+		{id: 'gif', desc: 'GIF'},
+		{id: 'mp4', desc: 'MP4'},
 	];
 
 	const isExporting = React.useRef(false);
@@ -389,6 +388,7 @@ export function App({
 			},
 			body: JSON.stringify({
 				id: parentId,
+				format: formatId,
 				frames,
 			}),
 		});
@@ -627,7 +627,7 @@ export function App({
 					<DialogTitle>{"Choose export format"}</DialogTitle>
 					<DialogContent>
 						<List>
-							{project.current && exportFormats.map(({ id, animated, desc }) => (
+							{project.current && exportFormats.map(({ id, desc }) => (
 								<ListItem
 									button
 									key={id}
@@ -635,7 +635,6 @@ export function App({
 										setSelectExportOpen(false);
 										onExport(id);
 									}}
-									disabled={animated != !!project.current.animate}
 								>
 									<ListItemText primary={desc} />
 								</ListItem>
