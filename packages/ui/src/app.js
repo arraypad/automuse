@@ -556,10 +556,6 @@ export function App({
 					<ListItemIcon fontSize="small"><SaveAltIcon /></ListItemIcon>
 					<ListItemText>Export render...</ListItemText>
 				</MenuItem>
-				<MenuItem onClick={() => { menuClose(); alert('exporting!'); }} disabled>
-					<ListItemIcon fontSize="small"><CodeIcon /></ListItemIcon>
-					<ListItemText>Export production build</ListItemText>
-				</MenuItem>
 			</Menu>
 			<div className={classes.appWrapper}>
 				<div ref={containerRef} className={classes.play}>
