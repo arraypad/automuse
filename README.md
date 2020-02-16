@@ -1,4 +1,4 @@
-Automuse is a creative coding framework for modern Javascript with a focus on iteration.
+# Automuse
 
 * Automatic UI generation
 * Uses Parcel bundler with hot-reloading
@@ -78,6 +78,10 @@ Clicking on the "Export render" entry in the menu will allow you to choose betwe
 * PNG: If your sketch has multiple frames this will return a zip file of the frames named like 00000.png, 00001.png etc. (relies on the `zip` program being installed).
 * GIF: Relies on `ffmpeg` being installed.
 * MP4: Relies on `ffmpeg` being installed.
+
+## Similar projects
+
+Automuse was mostly inspired by [canvas-sketch](https://github.com/mattdesl/canvas-sketch) and also bears many similarities to [Processing](https://processing.org/) / [p5.js](https://p5js.org/) and the like.
 
 ## License
 
