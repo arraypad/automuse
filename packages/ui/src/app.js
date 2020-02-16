@@ -211,7 +211,7 @@ export function App({
 		// todo: also store expansion state of folders?
 		storeSetItem('config', JSON.stringify(config.current));
 		forceRerender();
-		if (project.current && !project.current.animate) {
+		if (project.current && config.current.frames === 1) {
 			project.current.render(getContext());
 		}
 	};
@@ -251,7 +251,7 @@ export function App({
 		if (context.canvas) {
 			project.current = new sketch(getContext());
 
-			if (!project.current.animate) {
+			if (config.current.frames === 1) {
 				project.current.render(getContext());
 			}
 		}
@@ -269,6 +269,8 @@ export function App({
 	const [versions, setVersions] = React.useState([]);
 
 	const onSave = async () => {
+		project.current.render(getContext());
+
 		const dataUrl = context.canvas.toDataURL();
 		const res = await fetch(`${apiRoot}/api/save`, {
 			method: 'POST',
@@ -307,13 +309,13 @@ export function App({
 		isExporting.current = true;
 		setExportOpen(true);
 
-		const numFrames =  project.current.animate ? config.current.frames || 300 : 1;
+		const numFrames =  config.current.frames || 300;
 		const frames = new Array(numFrames);
 
 		const ctx = getContext();
 		const startTime = new Date();
 
-		if (window.Worker && context.exportWorkers > 0) {
+		if (window.Worker && context.exportWorkers > 0 && window.location.href === `${apiRoot}/`) {
 			const workers = [];
 
 			await (() => new Promise((resolve, reject) => {
@@ -367,13 +369,7 @@ export function App({
 			workers.splice(0, workers.length);
 		} else {
 			for (let i = 0; i < numFrames; i++) {
-				const ctx = getContext(i);
-
-				if (project.current.animate) {
-					project.current.animate(ctx);
-				}
-
-				project.current.render(ctx);
+				project.current.render(getContext(i));
 				frames[i] = context.canvas.toDataURL();
 				setExportProgress(80 * i / numFrames);
 			}
@@ -388,6 +384,7 @@ export function App({
 			},
 			body: JSON.stringify({
 				id: parentId,
+				fps: config.current.fps,
 				format: formatId,
 				frames,
 			}),
@@ -474,16 +471,8 @@ export function App({
 	const requestRef = React.useRef();
 
 	const animate = time => {
-		if (project.current) {
-			if (project.current.animate) {
-				if (!isExporting.current) {
-					project.current.animate(getContext());
-					project.current.render(getContext());
-				}
-			} else {
-				requestRef.current = null;
-				return;
-			}
+		if (project.current && config.current.frames !== 1 && !isExporting.current) {
+			project.current.render(getContext());
 		}
 
 		requestRef.current = requestAnimationFrame(animate);

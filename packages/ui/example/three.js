@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 
 export const config = {
+	frames: 300,
+	fps: 60,
 	width: 600,
 	height: 600,
 	ambientColor: 0x000000,
@@ -13,7 +15,7 @@ export const config = {
 	},
 	rotation: {
 		start: new THREE.Euler(0, 0, 0),
-		speed: new THREE.Euler(0.01, 0, 0.01),
+		speed: new THREE.Euler(1, 0, 1),
 	},
 };
 
@@ -35,7 +37,7 @@ export class Sketch {
 		this.ambient = new THREE.AmbientLight(config.ambientColor);
 		this.scene.add(this.ambient);
 
-		this.renderer = new THREE.WebGLRenderer({ canvas });
+		this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 		this.renderer.setClearColor(config.clearColor, 1.0);
 
 		this.mesh = new THREE.Mesh(
@@ -45,7 +47,6 @@ export class Sketch {
 			}),
 		);
 
-		this.mesh.rotation.copy(config.rotation.start);
 		this.scene.add(this.mesh);
 	}
 
@@ -55,13 +56,12 @@ export class Sketch {
 		this.renderer.setSize(width, height);
 	}
 
-	animate() {
-		this.mesh.rotation.x += config.rotation.speed.x;
-		this.mesh.rotation.y += config.rotation.speed.y;
-		this.mesh.rotation.z += config.rotation.speed.z;
-	}
+	render({ time }) {
+		// animate
+		this.mesh.rotation.x = config.rotation.start.x + config.rotation.speed.x * time;
+		this.mesh.rotation.y = config.rotation.start.y + config.rotation.speed.y * time;
+		this.mesh.rotation.z = config.rotation.start.z + config.rotation.speed.z * time;
 
-	render(ctx) {
 		// update properties which aren't directly linked to config
 		// (e.g. the constructor makes a copy)
 		this.renderer.setClearColor(config.clearColor, 1.0);

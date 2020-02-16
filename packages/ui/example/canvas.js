@@ -16,9 +16,6 @@ export class Sketch {
 		this.ctx = canvas.getContext('2d');
 	}
 
-	animate() {
-	}
-
 	render({ width, height, time }) {
 		this.ctx.clearRect(0, 0, width, height);
 
