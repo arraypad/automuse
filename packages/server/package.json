@@ -2,15 +2,14 @@
   "name": "automuse",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {},
   "bin": {
-    "automuse": "index.js"
+    "automuse": "dist/index.js"
   },
   "author": "Arpad Ray <arraypad@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "automuse-ui": "^0.1.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "parcel-bundler": "^1.12.4",

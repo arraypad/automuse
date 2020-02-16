@@ -9,6 +9,9 @@ const crypto = require('crypto');
 const { execSync } = require('child_process');
 const temp = require('temp');
 
+const templates = {};
+const uiDist = ``;
+
 temp.track();
 
 if (argv._.length !== 1) {
@@ -16,7 +19,7 @@ if (argv._.length !== 1) {
 	process.exit(1);
 }
 
-let sketchPath = argv._[0]:
+let sketchPath = argv._[0];
 if (!/\.jsx?/i.test(sketchPath)) {
 	sketchPath += '.js';
 }
@@ -35,14 +38,25 @@ if (!existsSync(storePath)) {
 	mkdirSync(storePath);
 }
 
-const { entryHtml, entryJs, workerJs, skeletonJs } = require('./templates');
+const { entryHtml, entryJs, workerJs } = require('./templates');
 
 writeFileSync(`${storePath}/index.html`, entryHtml);
 writeFileSync(`${storePath}/.automuse.js`, entryJs(projectId, sketchPath));
+writeFileSync(`${storePath}/.automuse-ui.js`, uiDist);
 writeFileSync(`${storePath}/.worker.js`, workerJs(sketchPath));
 
 if (!existsSync(sketchPath)) {
-	writeFileSync(sketchPath, skeletonJs);
+	let template = 'canvas';
+	if (argv.template) {
+		if (argv.template in templates) {
+			template = argv.template;
+		} else {
+			console.error(`Unknown template: ${argv.template}`);
+			process.exit(1);
+		}
+	}
+
+	writeFileSync(sketchPath, templates[template].toString());
 }
 
 // load index

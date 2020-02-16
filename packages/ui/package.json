@@ -5,13 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "parcel build --no-source-maps src/index.js",
-    "dev": "AUTOMUSE_API_ROOT=http://localhost:1235 parcel example/index.html",
+    "dev": "AUTOMUSE_API_ROOT=http://localhost:1235 parcel example/.test.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Arpad Ray <arraypad@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "alea": "^1.0.0",
     "@material-ui/core": "^4.9.1",
