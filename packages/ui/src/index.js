@@ -51,12 +51,11 @@ export function worker(Sketch, config) {
 		setConfig: newConfig => {
 			assignAll(newConfig, config);
 		},
-		render: ctx => {
-			if (project.animate) {
-				project.animate(ctx);
+		render: async (ctx) => {
+			const rendering = project.render(ctx);
+			if (rendering) {
+				await rendering;
 			}
-
-			project.render(ctx);
 
 			canvas.convertToBlob().then(blob => {
 				const reader = new FileReader();

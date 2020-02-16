@@ -211,12 +211,15 @@ export function App({
 		applyConfig(JSON.parse(cachedConfigJson));
 	}
 
-	const onConfigChange = () => {
+	const onConfigChange = async () => {
 		// todo: also store expansion state of folders?
 		storeSetItem('config', JSON.stringify(config.current));
 		forceRerender();
 		if (project.current && config.current.frames === 1) {
-			project.current.render(getContext());
+			const rendering = project.current.render(getContext());
+			if (rendering) {
+				await rendering;
+			}
 		}
 	};
 
@@ -252,13 +255,18 @@ export function App({
 	 */
 
 	React.useEffect(() => {
-		if (context.canvas) {
-			project.current = new sketch(getContext());
+		(async () => {
+			if (context.canvas) {
+				project.current = new sketch(getContext());
 
-			if (config.current.frames === 1) {
-				project.current.render(getContext());
+				if (config.current.frames === 1) {
+					const rendering = project.current.render(getContext());
+					if (rendering) {
+						await rendering;
+					}
+				}
 			}
-		}
+		})();
 
 		return () => {
 			project.current = null;
@@ -273,7 +281,10 @@ export function App({
 	const [versions, setVersions] = React.useState([]);
 
 	const onSave = async () => {
-		project.current.render(getContext());
+		const rendering = project.current.render(getContext());
+		if (rendering) {
+			await rendering;
+		}
 
 		const dataUrl = context.canvas.toDataURL();
 		const res = await fetch(`${apiRoot}/api/save`, {
@@ -319,13 +330,13 @@ export function App({
 		const ctx = getContext();
 		const startTime = new Date();
 
-		if (window.Worker && context.exportWorkers > 0 && window.location.href === `${apiRoot}/`) {
+		if (window.Worker && ctx.exportWorkers > 0 && window.location.href === `${apiRoot}/`) {
 			const workers = [];
 
 			await (() => new Promise((resolve, reject) => {
 				let renderedFrames = 0;
 
-				for (let i = 0; i < context.exportWorkers; i++) {
+				for (let i = 0; i < ctx.exportWorkers; i++) {
 					const canvas = document.createElement('canvas');
 					canvas.width = ctx.width;
 					canvas.height = ctx.height;
@@ -360,7 +371,7 @@ export function App({
 				}
 
 				for (let i = 0; i < numFrames; i++) {
-					const { worker } = workers[i % context.exportWorkers];
+					const { worker } = workers[i % ctx.exportWorkers];
 
 					const ctx = getContext(i);
 					delete ctx.canvas;
@@ -373,7 +384,10 @@ export function App({
 			workers.splice(0, workers.length);
 		} else {
 			for (let i = 0; i < numFrames; i++) {
-				project.current.render(getContext(i));
+				const rendering = project.current.render(getContext());
+				if (rendering) {
+					await rendering;
+				}
 				frames[i] = context.canvas.toDataURL();
 				setExportProgress(80 * i / numFrames);
 			}
@@ -474,9 +488,12 @@ export function App({
 
 	const requestRef = React.useRef();
 
-	const animate = time => {
+	const animate = async () => {
 		if (project.current && config.current.frames !== 1 && !isExporting.current) {
-			project.current.render(getContext());
+			const rendering = project.current.render(getContext());
+			if (rendering) {
+				await rendering;
+			}
 		}
 
 		requestRef.current = requestAnimationFrame(animate);
