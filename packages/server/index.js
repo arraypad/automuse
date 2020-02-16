@@ -11,7 +11,12 @@ const temp = require('temp');
 
 temp.track();
 
-let sketchPath = argv._.length === 1 ? argv._[0] : 'default';
+if (argv._.length !== 1) {
+	console.error('Usage: npx automuse path_to_sketch.js');
+	process.exit(1);
+}
+
+let sketchPath = argv._[0]:
 if (!/\.jsx?/i.test(sketchPath)) {
 	sketchPath += '.js';
 }
@@ -156,6 +161,7 @@ const bundler = new Bundler([
 	`${storePath}/.automuse.js`,
 	`${storePath}/.worker.js`,
 ], options);
+
 app.use(bundler.middleware());
 
 app.listen(port);
