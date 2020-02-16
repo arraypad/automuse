@@ -1,5 +1,3 @@
-## Introduction
-
 Automuse is a creative coding framework for modern Javascript with a focus on iteration.
 
 * Automatic UI generation
@@ -44,7 +42,7 @@ Running Automuse with this sketch will generate the following UI:
 
 You can put whatever you like in the config object and Automuse will automatically generate a UI for it, so you can experiment interactively to find pleasing values. For example here's the `three` template:
 
-![UI for "three" template](docs/demo-three.png)
+![UI for "three" template](docs/demo-ui2.png)
 
 ## Config
 
@@ -65,7 +63,7 @@ The config object is provided to each sketch method as well as some extra values
 * `time`: The time in seconds since the sketch started.
 * `random`: A function you can call to get RNG values based on the configured seed.
 
-## Versions
+## Versions
 
 At any time you can click the "Save" button to store a snapshot of the current config, a thumbnail, and the Git revision of your code.
 
