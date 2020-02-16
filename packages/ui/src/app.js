@@ -640,18 +640,16 @@ export function App({
 				>
 					<DialogTitle>{"Exporting"}</DialogTitle>
 					<DialogContent>
-						{exportUrl ? (
+						{exportUrl ? (<>
 							<DialogContentText>
-								<p>
-									Export finished
-										(render={exportTime.render.toFixed(2)}s,
-										encode={exportTime.encode.toFixed(2)}s).
-								</p>
-								<p>
-									<a target="_blank" href={exportUrl}>Here your go!</a>
-								</p>
+								Export finished
+									(render={exportTime.render.toFixed(2)}s,
+									encode={exportTime.encode.toFixed(2)}s).
 							</DialogContentText>
-						) : (<>
+							<DialogContentText>
+								<a target="_blank" href={exportUrl}>Here your go!</a>
+							</DialogContentText>
+						</>) : (<>
 							<DialogContentText>
 								Please wait, or make a cup of tea...
 							</DialogContentText>
