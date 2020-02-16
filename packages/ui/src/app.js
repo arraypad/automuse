@@ -1,4 +1,5 @@
 import React from 'react';
+import Alea from 'alea';
 
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -149,6 +150,7 @@ export function App({
 	 */
 
 	const [context, setContext] = React.useState({
+		seed: 'hello',
 		startTime: new Date().getTime(),
 		exportWorkers: 4,
 	});
@@ -164,13 +166,15 @@ export function App({
 			time = frame / fps;
 		}
 
-		const ctx = {
+		const ctx = Object.assign({
 			time,
 			frame,
 			...context,
-		};
+		}, config.current);
 
-		return Object.assign(ctx, config.current);
+		ctx.random = new Alea(ctx.seed);
+
+		return ctx;
 	};
 
 	const config = React.useRef(originalConfig);

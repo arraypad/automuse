@@ -1,6 +1,9 @@
 import React from 'react';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
+import IconButton from '@material-ui/core/IconButton';
+import Input from '@material-ui/core/Input';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import InputColor from 'react-input-color';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
@@ -8,6 +11,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -136,7 +140,9 @@ function UiFieldInner({ k, v, onChange, inputOnly }) {
 	const classes = useStyles();
 
 	if (!v.component) {
-		if (/colou?r/i.test(k)) {
+		if (k === 'seed') {
+			v.component = 'seed';
+		} else if (/colou?r/i.test(k)) {
 			v.component = 'color';
 		} else {
 			switch (typeof(v.value)) {
@@ -171,6 +177,27 @@ function UiFieldInner({ k, v, onChange, inputOnly }) {
 					: newValue.hex)
 			}}
 		/>
+		break;
+	case 'seed':
+		input = <FormControl>
+			<Input
+				label={inputOnly && k}
+				value={v.value}
+				onChange={e => onChange(e.target.value)}
+				endAdornment={<InputAdornment position="end">
+					<IconButton
+						onClick={() => {
+							const bytes = new Uint8Array(4);
+							window.crypto.getRandomValues(bytes);
+							v.value = btoa(bytes);
+							onChange(v.value);
+						}}
+					>
+						<RefreshIcon />
+					</IconButton>
+				</InputAdornment>}
+			/>
+		</FormControl>;
 		break;
 	case 'string':
 		input = <TextField
