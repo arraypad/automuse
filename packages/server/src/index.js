@@ -6,7 +6,7 @@ const cors = require('cors');
 const { argv } = require('yargs');
 const { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } = require('fs');
 const crypto = require('crypto');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const temp = require('temp');
 
 const templates = {};
@@ -80,8 +80,8 @@ app.use(`/`, express.static(storePath));
 
 function getRevision() {
 	try {
-		const buf = execSync('git rev-parse --short HEAD');
-		return buf.toString('utf-8');
+		const { stdout } = spawnSync('git', ['rev-parse', '--short', 'HEAD']);
+		return stdout.toString('utf-8');
 	} catch {
 		return null;
 	}
@@ -139,22 +139,49 @@ app.post('/api/render', (req, res) => {
 	}
 
 	let outName = `${req.body.id}-${new Date().toISOString()}.${req.body.format}`;
+	if (/[\\\/"']/.test(outName)) {
+		return res.status(400).send('Bad Request');
+	}
 
-	const fps = req.body.fps || 30;
+	const fps = parseInt(req.body.fps) || 30;
 	switch (req.body.format) {
 	case 'png':
 		if (req.body.frames.length === 1) {
 			copyFileSync(`${dir}/00000.png`, `${storePath}/${outName}`);
 		} else {
 			outName = outName.replace(/.png/, '.zip');
-			execSync(`zip -j ${storePath}/${outName} ${dir}/*.png`);
+			spawnSync(
+				'zip', '-j',
+				[
+					`${storePath}/${outName}`,
+					`${dir}/*.png`,
+				],
+			);
 		}
 		break;
 	case 'gif':
-		execSync(`ffmpeg -framerate ${fps} -i ${dir}/%05d.png -filter_complex "palettegen[v1];[0:v][v1]paletteuse" -y ${storePath}/${outName}`);
+		spawnSync(
+			'ffmpeg',
+			[
+				'-framerate', fps,
+				'-i', `${dir}/%05d.png`,
+				'-filter_complex', 'palettegen[v1];[0:v][v1]paletteuse',
+				'-y', `${storePath}/${outName}`,
+			]
+		);
 		break;
 	case 'mp4':
-		execSync(`ffmpeg -framerate ${fps} -i ${dir}/%05d.png -c:v libx264 -pix_fmt yuv420p -crf 18 ${storePath}/${outName}`);
+		spawnSync(
+			'ffmpeg',
+			[
+				'-framerate', fps,
+				'-i', `${dir}/%05d.png`,
+				'-c:v', 'libx264',
+				'-pix_fmt', 'yuv420p',
+				'-crf', '18',
+				`${storePath}/${outName}`,
+			],
+		);
 		break;
 	}
 
