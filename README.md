@@ -1,5 +1,7 @@
 # Automuse
 
+*Warning: This is very unfinished software, use at your own risk!*
+
 * Automatic UI generation
 * Uses Parcel bundler with hot-reloading
 * Save sketches and export renders from the UI

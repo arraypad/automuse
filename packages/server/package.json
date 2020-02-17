@@ -1,6 +1,6 @@
 {
   "name": "automuse",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A creative coding framework for modern Javascript with a focus on interactive iteration.",
   "main": "dist/index.js",
   "scripts": {},
