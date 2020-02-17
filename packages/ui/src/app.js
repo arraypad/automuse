@@ -668,7 +668,7 @@ export function App({
 									encode={exportTime.encode.toFixed(2)}s).
 							</DialogContentText>
 							<DialogContentText>
-								<a target="_blank" href={exportUrl}>Here your go!</a>
+								<a target="_blank" href={exportUrl}>Here you go!</a>
 							</DialogContentText>
 						</>) : (<>
 							<DialogContentText>
