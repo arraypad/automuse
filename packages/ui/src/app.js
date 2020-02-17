@@ -192,7 +192,7 @@ export function App({
 		}
 	};
 
-	const applyConfig = newConfig => {
+	const applyConfig = async (newConfig) => {
 		const dimsChanged = newConfig.width !== config.current.width || newConfig.height !== config.current.height;
 		assignAll(newConfig, config.current);
 		if (dimsChanged) {
@@ -200,6 +200,10 @@ export function App({
 		}
 		resetConfigJson = JSON.stringify(newConfig);
 		storeSetItem('config', JSON.stringify(newConfig));
+		const rendering = project.current.render(getContext());
+		if (rendering) {
+			await rendering;
+		}
 	};
 
 	const resetConfig = () => {
