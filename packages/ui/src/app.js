@@ -388,7 +388,7 @@ export function App({
 			workers.splice(0, workers.length);
 		} else {
 			for (let i = 0; i < numFrames; i++) {
-				const rendering = project.current.render(getContext());
+				const rendering = project.current.render(getContext(i));
 				if (rendering) {
 					await rendering;
 				}
