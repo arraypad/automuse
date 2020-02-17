@@ -151,7 +151,7 @@ app.post('/api/render', (req, res) => {
 		}
 		break;
 	case 'gif':
-		execSync(`ffmpeg -framerate ${fps} -i ${dir}/%05d.png ${storePath}/${outName}`);
+		execSync(`ffmpeg -framerate ${fps} -i ${dir}/%05d.png -filter_complex "palettegen[v1];[0:v][v1]paletteuse" -y ${storePath}/${outName}`);
 		break;
 	case 'mp4':
 		execSync(`ffmpeg -framerate ${fps} -i ${dir}/%05d.png -c:v libx264 -pix_fmt yuv420p -crf 18 ${storePath}/${outName}`);
