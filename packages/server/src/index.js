@@ -129,13 +129,20 @@ app.post('/api/delete', (req, res) => {
 });
 
 app.post('/api/render', (req, res) => {
+	if (/\W/.test(req.body.format)) {
+		return res.status(400).send('Bad Request');
+	}
+
 	const dir = temp.mkdirSync('automuse');
+	const framePaths = [];
 	let i = 0;
 	for (const frame of req.body.frames) {
-		const image = Buffer.from(frame.substr(22), 'base64');
-		const imagePath = `${dir}/${new String(i).padStart(5, '0')}.png`;
-		writeFileSync(imagePath, image);
+		const decoded = req.body.raw ? frame : Buffer.from(frame.substr(22), 'base64');
+		const ext = req.body.raw ? req.body.format : 'png';
+		const framePath = `${dir}/${new String(i).padStart(5, '0')}.${ext}`;
+		writeFileSync(framePath, decoded);
 		i++;
+		framePaths.push(framePath);
 	}
 
 	let outName = `${req.body.id}-${new Date().toISOString()}.${req.body.format}`;
@@ -145,20 +152,6 @@ app.post('/api/render', (req, res) => {
 
 	const fps = parseInt(req.body.fps) || 30;
 	switch (req.body.format) {
-	case 'png':
-		if (req.body.frames.length === 1) {
-			copyFileSync(`${dir}/00000.png`, `${storePath}/${outName}`);
-		} else {
-			outName = outName.replace(/.png/, '.zip');
-			spawnSync(
-				'zip', '-j',
-				[
-					`${storePath}/${outName}`,
-					`${dir}/*.png`,
-				],
-			);
-		}
-		break;
 	case 'gif':
 		spawnSync(
 			'ffmpeg',
@@ -182,6 +175,21 @@ app.post('/api/render', (req, res) => {
 				`${storePath}/${outName}`,
 			],
 		);
+		break;
+	default:
+		if (req.body.frames.length === 1) {
+			copyFileSync(`${dir}/00000.${req.body.format}`, `${storePath}/${outName}`);
+		} else {
+			outName = outName.replace(`.${req.body.format}`, '.zip');
+			spawnSync(
+				'zip',
+				[
+					'-j',
+					`${storePath}/${outName}`,
+					...framePaths,
+				],
+			);
+		}
 		break;
 	}
 

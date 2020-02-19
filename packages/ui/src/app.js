@@ -200,10 +200,7 @@ export function App({
 		}
 		resetConfigJson = JSON.stringify(newConfig);
 		storeSetItem('config', JSON.stringify(newConfig));
-		const rendering = project.current.render(getContext());
-		if (rendering) {
-			await rendering;
-		}
+		await project.current.render(getContext());
 	};
 
 	const resetConfig = () => {
@@ -220,10 +217,7 @@ export function App({
 		storeSetItem('config', JSON.stringify(config.current));
 		forceRerender();
 		if (project.current && config.current.frames === 1) {
-			const rendering = project.current.render(getContext());
-			if (rendering) {
-				await rendering;
-			}
+			await project.current.render(getContext());
 		}
 	};
 
@@ -264,10 +258,7 @@ export function App({
 				project.current = new sketch(getContext());
 
 				if (config.current.frames === 1) {
-					const rendering = project.current.render(getContext());
-					if (rendering) {
-						await rendering;
-					}
+					await project.current.render(getContext());
 				}
 			}
 		})();
@@ -285,10 +276,7 @@ export function App({
 	const [versions, setVersions] = React.useState([]);
 
 	const onSave = async () => {
-		const rendering = project.current.render(getContext());
-		if (rendering) {
-			await rendering;
-		}
+		await project.current.render(getContext());
 
 		const dataUrl = context.canvas.toDataURL();
 		const res = await fetch(`${apiRoot}/api/save`, {
@@ -322,7 +310,7 @@ export function App({
 	const [exportProgress, setExportProgress] = React.useState(50);
 	const [exportUrl, setExportUrl] = React.useState(null);
 	const [exportTime, setExportTime] = React.useState(null);
-	const onExport = async (formatId) => {
+	const onExport = async ({ raw, extension, formatId }) => {
 		setExportUrl(null);
 		setExportProgress(0);
 		isExporting.current = true;
@@ -350,8 +338,8 @@ export function App({
 					const worker = new Worker(`${apiRoot}/.worker.js`);
 
 					worker.onmessage = async (e) => {
-						const { frame, dataUrl } = e.data;
-						frames[frame] = dataUrl;
+						const { frame, render } = e.data;
+						frames[frame] = render;
 						setExportProgress(80 * ++renderedFrames / numFrames);
 						if (renderedFrames === numFrames) {
 							resolve();
@@ -361,6 +349,7 @@ export function App({
 					worker.postMessage({
 						handler: 'init',
 						ctx: {
+							raw,
 							...ctx,
 							canvas: offscreen,
 						},
@@ -388,11 +377,8 @@ export function App({
 			workers.splice(0, workers.length);
 		} else {
 			for (let i = 0; i < numFrames; i++) {
-				const rendering = project.current.render(getContext(i));
-				if (rendering) {
-					await rendering;
-				}
-				frames[i] = context.canvas.toDataURL();
+				const render = await project.current.render(getContext(i));
+				frames[i] = raw ? render : context.canvas.toDataURL();
 				setExportProgress(80 * i / numFrames);
 			}
 		}
@@ -407,7 +393,8 @@ export function App({
 			body: JSON.stringify({
 				id: parentId,
 				fps: config.current.fps,
-				format: formatId,
+				format: formatId || config.current.extension,
+				raw,
 				frames,
 			}),
 		});
@@ -494,10 +481,7 @@ export function App({
 
 	const animate = async () => {
 		if (project.current && config.current.frames !== 1 && !isExporting.current) {
-			const rendering = project.current.render(getContext());
-			if (rendering) {
-				await rendering;
-			}
+			await project.current.render(getContext());
 		}
 
 		requestRef.current = requestAnimationFrame(animate);
@@ -577,6 +561,10 @@ export function App({
 					<ListItemIcon fontSize="small"><SaveAltIcon /></ListItemIcon>
 					<ListItemText>Export render...</ListItemText>
 				</MenuItem>
+				<MenuItem onClick={() => { menuClose(); onExport({ raw: true, }); }}>
+					<ListItemIcon fontSize="small"><SaveAltIcon /></ListItemIcon>
+					<ListItemText>Export raw</ListItemText>
+				</MenuItem>
 			</Menu>
 			<div className={classes.appWrapper}>
 				<div ref={containerRef} className={classes.play}>
@@ -643,7 +631,7 @@ export function App({
 									key={id}
 									onClick={() => {
 										setSelectExportOpen(false);
-										onExport(id);
+										onExport({ formatId: id });
 									}}
 								>
 									<ListItemText primary={desc} />

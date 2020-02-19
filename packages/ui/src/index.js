@@ -40,11 +40,12 @@ export function runApp(Sketch, config, projectId) {
 }
 
 export function worker(Sketch, config) {
-	let project, canvas;
+	let project, canvas, raw;
 
 	const handlers = {
 		init: ctx => {
 			canvas = new OffscreenCanvas(ctx.width, ctx.height);
+			raw = ctx.raw,
 			ctx.canvas = canvas;
 			project = new Sketch(ctx);
 		},
@@ -52,16 +53,17 @@ export function worker(Sketch, config) {
 			assignAll(newConfig, config);
 		},
 		render: async (ctx) => {
-			const rendering = project.render(ctx);
-			if (rendering) {
-				await rendering;
+			const render = await project.render(ctx);
+			if (raw) {
+				self.postMessage({ frame: ctx.frame, render });
+				return;
 			}
 
 			canvas.convertToBlob().then(blob => {
 				const reader = new FileReader();
 				reader.readAsDataURL(blob);
 				reader.onloadend = () => {
-					self.postMessage({frame: ctx.frame, dataUrl: reader.result });
+					self.postMessage({frame: ctx.frame, render: reader.result });
 				};
 			})
 		},
